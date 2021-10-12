@@ -1,3 +1,4 @@
 
 #testing folder
 /test/*
+/__pycache__
