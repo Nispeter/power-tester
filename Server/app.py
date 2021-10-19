@@ -15,6 +15,7 @@ def slave_serve(file_dir, name, cmd):
     host = '192.168.56.1'
     print(file_dir, name, cmd)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     #   s.setblocking(False)
         s.bind((host, port))
         s.listen(5)

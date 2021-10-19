@@ -5,7 +5,12 @@ PORT = 50000        # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
-    payload = s.recv(1024)
+    payload = b''
+    while True:
+        data = s.recv(1024)
+        if not data:
+            break
+        payload += data
     payloadDict = json.loads(payload.decode())
     name = payloadDict["name"] + ".cpp"
     with open(name, 'w') as f:
