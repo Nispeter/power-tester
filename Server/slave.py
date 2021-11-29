@@ -17,3 +17,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         f.write(payloadDict["code"])
 
 print('Received', payloadDict["name"])
+
+
+#ejecutar script de pruebas
