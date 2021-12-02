@@ -13,10 +13,25 @@ def countdown(time_sec):
     print("stop")
 
 
-tmr = threading.Thread(target=countdown, args=(5,))
-tmr.start()
-i = 0
+def createfunc():
+    global is_ready
+    is_ready = False
+    time.sleep(1)
 
-while tmr.is_alive():
-    print(i)
-    i = i + 1
+
+def continuefunction():
+    global is_ready
+    while not is_ready:
+        pass
+        # print("corriendo")
+
+
+tmr2 = threading.Thread(target=createfunc, args=())
+print(tmr2.is_alive())
+tmr2.start()
+print(tmr2.is_alive())
+tmr = threading.Thread(target=continuefunction, args=())
+tmr.start()
+
+time.sleep(1)
+is_ready = True
