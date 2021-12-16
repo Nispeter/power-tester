@@ -16,21 +16,21 @@ app = Flask(__name__)
 CORS(app)
 
 
-def countdown(time_sec):
-    while time_sec:
-        time.sleep(1)
-        time_sec -= 1
+def graph_results():
+    pass
 
 
 def send_manager(s, json_string):
-    global recv_is_ready
-    s.settimeout(5.0)
-    while not recv_is_ready:
+    firsttime = True
+    while True:
         try:
             conn, addr = s.accept()  # romper loop con s.accept de otro puerto
+            th.Thread(target=send_program, args=(conn, json_string)).start()
         except socket.timeout:
             break
-        th.Thread(target=send_program, args=(conn, json_string)).start()
+        if(firsttime):
+            firsttime = False
+            s.settimeout(5.0)
 
 
 def send_program(conn, json_string):
@@ -39,24 +39,17 @@ def send_program(conn, json_string):
 
 
 def recv_manager(s):
-    aux = th.Thread(target=countdown, args=(5, ))
-    already_executed = False
-    s.settimeout(5.0)
-    global recv_is_ready
+    firsttime = True
     while True:
         try:
             conn, addr = s.accept()
+            th.Thread(target=receive_data, args=(conn, )).start()
         except socket.timeout:
             break
-        if(not recv_is_ready):                              # bandera para detener el send
-            recv_is_ready = True
-        th.Thread(target=receive_data, args=(conn, )).start()
+        if(firsttime):
+            firsttime = False
+            s.settimeout(5.0)
         # inicia conteo de 5 segundos para recibir archivos
-        if(not aux.is_alive()):
-            if(already_executed):                           # el conteo se realiza 1 sola ves
-                break
-            aux.start()
-            already_executed = True
 
 
 def receive_data(conn):
@@ -91,8 +84,6 @@ def slave_serve(file_dir, name, cmd):
             code = f.read()
         m = {"name": name, "cmd": cmd, "code": code}
         json_string = json.dumps(m)
-        global recv_is_ready
-        recv_is_ready = False
         sendmng = th.Thread(target=send_manager, args=(s, json_string, ))
         sendmng.start()
         recvmng = th.Thread(target=recv_manager, args=(s2,))

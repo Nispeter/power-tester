@@ -3,7 +3,8 @@
 
 executable=$1
 
-outfile=resultsEnergy$(date +"%Y-%m-%d-%H:%M:%S").data
+outfile=resultsEnergy$(date +"%Y-%m-%d-%H:%M:%S").csv
+echo $outfile
 
 cols=("Instructions" "LLCLoads"
       "LLCLoadMisses" "LLCStores" "LLCStoresMisses" "L1DcacheLoads"
@@ -16,15 +17,15 @@ columns=$(echo ${numcols// /,})
 
 echo $columns >> ${outfile}
 
-for((j=0; j<2; j++))
+for((j=0; j<30; j++))
 do
-	echo "loop ${j}"
+	#echo "loop ${j}"
 	perf stat -a -x';' -o ${outfile}.tmp -e \
 		    	     instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles ./${executable} >> ${outfile} #<- agregar soporte de argumentos
-	cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/\s\+/;/g' >> ${outfile}
+	cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/\s\+/,/g' >> ${outfile}
 done
 
-find ${outfile} -type f -exec sed -i 's/<not;counted>/<not-counted>/g' {} \;
-find ${outfile} -type f -exec sed -i 's/<not;supported>/<not-supported>/g' {} \;
+find ${outfile} -type f -exec sed -i 's/<not,counted>/<not-counted>/g' {} \;
+find ${outfile} -type f -exec sed -i 's/<not,supported>/<not-supported>/g' {} \;
 
 rm ${outfile}.tmp
