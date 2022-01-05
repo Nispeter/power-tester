@@ -2,10 +2,9 @@
 from flask import Flask, request, render_template, abort
 from flask_cors import CORS
 import matplotlib.pyplot as plt
-import csv
+import pandas as pd
 import subprocess
 import random
-import time
 import socket
 import json
 import threading as th
@@ -20,29 +19,27 @@ def graph_results(name, thd):
 
     thd.join()
     nameresult = name + "Results"
-    x = []
-    y = []
-    i = 1
     print("Plotting!")
     subprocess.run(["mkdir", "static/" + name], universal_newlines=True)
-    with open(nameresult, 'r') as csvfile:
-        lines = csv.reader(csvfile, delimiter=',')
-        titleRow = next(lines)
-        title = titleRow[12]
-        for row in lines:
-            x.append(i)
-            i = i + 1
-            y.append(int(row[12]))
-    plt.plot(x, y, color='g', linestyle='dashed', marker='o', label="Test")
-    # plt.xticks(rotation = 25)
-    plt.xlabel("Iteracion")
-    plt.ylabel(title)
-    plt.minorticks_on()
-    plt.title('Ciclos', fontsize=20)
-    plt.grid()
-    plt.legend()
-    aux = str(1)
-    plt.savefig("static/" + name + "/fig" + aux + ".svg", format='svg')
+    df = pd.read_csv(nameresult)
+    # with open(nameresult, 'r') as csvfile:
+    #     lines = csv.reader(csvfile, delimiter=',')
+    #     titleRow = next(lines)
+    #     title = titleRow[12]
+    #     for row in lines:
+    #         x.append(i)
+    #         i = i + 1
+    #         y.append(int(row[12]))
+    for i in range(12):
+        try:
+            aux = df.plot(y=i,use_index=True,color='green', title=df.columns[i], legend=None, xlabel='Iterations', ylabel="n. de "+df.columns[i], style='--', marker='.')
+        except TypeError:
+            continue
+        plt.minorticks_on()
+        plt.grid()
+        plt.savefig("static/" + name + "/fig" + str(i) + ".svg", format='svg')
+    subprocess.run(["mv", nameresult, "static/" + name])
+    print("Done!")
 
 
 def send_manager(s, json_string):
