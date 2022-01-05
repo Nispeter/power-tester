@@ -1,8 +1,8 @@
 # , make_response , send_file
 from flask import Flask, request, render_template, abort
 from flask_cors import CORS
-#from werkzeug.exceptions import HTTPException
-#from ftplib import FTP
+import matplotlib.pyplot as plt
+import csv
 import subprocess
 import random
 import time
@@ -16,8 +16,33 @@ app = Flask(__name__)
 CORS(app)
 
 
-def graph_results():
-    pass
+def graph_results(name, thd):
+
+    thd.join()
+    nameresult = name + "Results"
+    x = []
+    y = []
+    i = 1
+    print("Plotting!")
+    subprocess.run(["mkdir", "static/" + name], universal_newlines=True)
+    with open(nameresult, 'r') as csvfile:
+        lines = csv.reader(csvfile, delimiter=',')
+        titleRow = next(lines)
+        title = titleRow[12]
+        for row in lines:
+            x.append(i)
+            i = i + 1
+            y.append(int(row[12]))
+    plt.plot(x, y, color='g', linestyle='dashed', marker='o', label="Test")
+    # plt.xticks(rotation = 25)
+    plt.xlabel("Iteracion")
+    plt.ylabel(title)
+    plt.minorticks_on()
+    plt.title('Ciclos', fontsize=20)
+    plt.grid()
+    plt.legend()
+    aux = str(1)
+    plt.savefig("static/" + name + "/fig" + aux + ".svg", format='svg')
 
 
 def send_manager(s, json_string):
@@ -31,6 +56,7 @@ def send_manager(s, json_string):
         if(firsttime):
             firsttime = False
             s.settimeout(5.0)
+    # usar return para ver cantidad de medidores disponibles (?)
 
 
 def send_program(conn, json_string):
@@ -123,8 +149,8 @@ def cap_code():
     f.close()
     # ftp = FTP(host='192.168.56.101', user='diego', passwd='holahola01k')  #Cambiar para utilizar lista de ips de esclavos. Red local, no es necesario proteger passwd
     # ftp.cwd('Desktop')
-    #f = open(file_dir, 'rb')
-    #ftp.storlines('STOR '+ file_dir2 + '.cpp', f)
+    # f = open(file_dir, 'rb')
+    # ftp.storlines('STOR '+ file_dir2 + '.cpp', f)
     # ftp.quit()
     if not security_check:
         abort(409)
@@ -146,6 +172,9 @@ def cap_code():
     # newpid = os.fork()
     # if newpid == 0:
     print("Code received!")
-    th.Thread(target=slave_serve, args=(file_dir, name, "-O3", )).start()
+    aux = th.Thread(target=slave_serve, args=(file_dir, name, "-O3", ))
+    aux.start()
+    aux2 = th.Thread(target=graph_results, args=(name, aux, ))
+    aux2.start()
     #    os._exit(0)
     return '<h1>200 OK</h1>', 200

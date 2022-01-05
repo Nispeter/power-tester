@@ -1,13 +1,18 @@
 import socket
 import json
-import time
 import subprocess as sub
+# import os
+import sys
 
 HOST = '192.168.56.1'  # The server's hostname or IP address
 PORT = 50000        # The port used by the server
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
+    try:
+        s.connect((HOST, PORT))
+    except ConnectionRefusedError:
+        print("tmr")
+        sys.exit(-1)         # agregar limite de intentos
     payload = b''
     while True:
         data = s.recv(1024)
@@ -24,10 +29,10 @@ print('Received', payloadDict["name"])
 
 
 # ejecutar script de pruebas
-sub.run(["g++", name], universal_newlines=True)
+sub.run(["g++", name], universal_newlines=True)  # agregar optimizaciones
 try:
-    aux = sub.run(["bash", "measurescript.sh", "a.out"], capture_output=True, universal_newlines=True, timeout=15)
-except s.TimeoutExpired:
+    aux = sub.run(["bash", "measurescript.sh", "a.out"], capture_output=True, universal_newlines=True, timeout=45)
+except sub.TimeoutExpired:
     # ver que hacer en caso de error
     pass
 resultname = aux.stdout
