@@ -6,7 +6,7 @@ import subprocess as sub
 import time
 
 HOST = '192.168.56.1'  # The server's hostname or IP address
-PORT = 50000        # The port used by the server
+PORT = 50000        # The port used by the server puerto 22
 
 while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
