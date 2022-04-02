@@ -4,6 +4,10 @@ import {BrowserRouter, Routes, Route, useParams, useNavigate} from "react-router
 const axios = require("axios").default;
 
 class App extends Component {
+  componentDidMount(){
+    document.title = "Power-tester"
+  }
+
   render() {
     return (
       <div>
@@ -78,21 +82,21 @@ class RenderTable extends Component {
               <td>{this.state.Instructions}</td>
             </tr>
             <tr>
-              <td className="dataName">Cargas de caché último nivel:</td>
+              <td className="dataName">Lecturas de caché último nivel:</td>
               <td>{this.state.LLCLoads}</td>
               <td className="dataName">Fallos de caché último nivel:</td>
               <td>{this.state.LLCLoadMisses}</td>
-              <td className="dataName">Guardados de caché último nivel:</td>
+              <td className="dataName">Escrituras de caché último nivel:</td>
               <td>{this.state.LLCStores}</td>
-              <td className="dataName">Fallos de guardado de caché último nivel:</td>
+              <td className="dataName">Fallos de escrituras de caché último nivel:</td>
               <td>{this.state.LLCStoresMisses}</td>
             </tr>
             <tr>
-              <td className="dataName">Cargas de caché nivel 1:</td>
+              <td className="dataName">Lecturas de caché nivel 1:</td>
               <td>{this.state.L1DcacheLoads}</td>
               <td className="dataName">Fallos de caché nivel 1:</td>
               <td>{this.state.L1DcacheLoadMisses}</td>
-              <td className="dataName">Guardados de caché nivel 1:</td>
+              <td className="dataName">Escrituras de caché nivel 1:</td>
               <td>{this.state.L1DcacheStores}</td>
               <td className="dataName">Fallos generales de caché:</td>
               <td>{this.state.CacheMisses}</td>
@@ -102,7 +106,7 @@ class RenderTable extends Component {
               <td>{this.state.CacheReferences}</td>
               <td className="dataName">Saltos:</td>
               <td>{this.state.Branches}</td>
-              <td className="dataName">Fallos de Saltos:</td>
+              <td className="dataName">Fallos de saltos:</td>
               <td>{this.state.BranchMisses}</td>
               <td className="dataName">Ciclos de CPU:</td>
               <td>{this.state.CpuCycles}</td>
@@ -159,14 +163,14 @@ function RenderImage(props){
         </div>
       </div>
       <div class="cat">
-        <h2>Estatisticas generales de Caché</h2>
+        <h2>Estadísticas generales de Caché</h2>
         <div class="row">
           <img src={link+"fig12.svg"} alt="img12"></img>
           <img src={link+"fig11.svg"} alt="img11"></img>
         </div>
       </div>
       <div class="cat">
-        <h2>Estadisticas de Ultimo nivel de Caché</h2>
+        <h2>Estadísticas de Último nivel de Caché</h2>
         <div class="row">
           <img src={link+"fig4.svg"} alt="img4"></img>
           <img src={link+"fig5.svg"} alt="img5"></img>
@@ -177,7 +181,7 @@ function RenderImage(props){
         </div>
       </div>
       <div class="cat">
-        <h2>Estadisticas de Caché nivel 1</h2>
+        <h2>Estadísticas de Caché nivel 1</h2>
         <div class="row">
           <img src={link+"fig8.svg"} alt="img8"></img>
           <img src={link+"fig9.svg"} alt="img9"></img>
@@ -268,7 +272,7 @@ function RenderForm(){
   return (<React.Fragment>
             <div><h1>Power Tester</h1></div>
             <form onSubmit={handleSubmit}>
-            <div><label htmlFor="code">Inserte codigo </label></div>
+            <div><label htmlFor="code">Inserte código </label></div>
             <textarea type="text" id="code" name="code" rows="20" cols="100" value={code} onChange={handleChange}></textarea>
             <aside>
               <h2> Estado del Código </h2>
@@ -282,14 +286,6 @@ function RenderForm(){
             </div>
             </form>
           </React.Fragment>)
-
-function RenderImage(){
-  var asd = useParams().codename;
-  return (
-    <div>
-      <img src={"http://127.0.0.1:5000/static/"+asd+"/fig0.svg"}></img>
-      <img src={"http://127.0.0.1:5000/static/"+asd+"/fig1.svg"}></img>
-    </div>
-    );
 }
+
 export default App;

@@ -23,8 +23,8 @@ queuelist = []
 activeS = 0  # medidores activos (medidores que han respondido al servidor)
 activeR = 0
 color = ['red', 'green', 'blue', 'orange', 'purple']
-unidadesdemedida = ['Joules', 'Joules', 'Joules', 'Instrucciones', 'Cargas de caché', 'Fallos de caché', 'Guardados de caché', 'Fallos de guardados de caché', 'Cargas de caché', 'Fallos de carga de caché', 'Guardados de caché', 'Fallos de caché', 'Referencias de caché', 'Ramas', 'Fallos de ramas', 'Ciclos de cpu', 'Nanosegundos']
-titulos = ['Energía de Nucleos', 'Energía de Paquete', 'Energía de RAM', 'Instrucciones', 'Cargas de LLC', 'Fallos de caché de LLC', 'Guardados de LLC', 'Fallas de guardado de LLC', 'Cargas de caché L1D', 'Fallos de caché de L1D', 'Guardados de caché de L1D', 'Fallos de caché', 'Referencias de caché', 'Ramas', 'Fallos de ramas', 'Ciclos de CPU', 'Tiempo de ejecución']
+unidadesdemedida = ['Joules', 'Joules', 'Joules', 'Instrucciones', 'Lecturas de caché', 'Fallos de caché', 'Escrituras de caché', 'Fallos de guardados de caché', 'Lecturas de caché', 'Fallos de carga de caché', 'Escrituras de caché', 'Fallos de caché', 'Referencias de caché', 'Saltos', 'Fallas en saltos', 'Ciclos de cpu', 'Nanosegundos']
+titulos = ['Energía de Nucleos', 'Energía de Paquete', 'Energía de RAM', 'Instrucciones', 'Lecturas de LLC', 'Fallos de caché de LLC', 'Escrituras de LLC', 'Fallas de guardado de LLC', 'Lecturas de caché L1D', 'Fallos de caché de L1D', 'Escrituras de caché de L1D', 'Fallos de caché', 'Referencias de caché', 'Saltos', 'Fallas en saltos', 'Ciclos de CPU', 'Tiempo de ejecución']
 
 def graph_results(name):
     print("Plotting " + name + "!")
