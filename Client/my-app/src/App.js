@@ -1,5 +1,5 @@
-import React, { Component , useState} from "react";
-import {BrowserRouter, Routes, Route, useParams, useNavigate} from "react-router-dom"
+import React, { Component , useState, useEffect} from "react";
+import {BrowserRouter, Routes, Route, useParams, useNavigate, useLocation} from "react-router-dom"
 
 const axios = require("axios").default;
 
@@ -71,56 +71,58 @@ class RenderTable extends Component {
       <React.Fragment>
         <div>
           <table style={{width: "50%"} }>
-            <tr>
-              <td className="dataName">Energía de Nucleos (J):</td>
-              <td>{this.state.EnergyCores}</td>
-              <td className="dataName">Energía de Paquete (J):</td>
-              <td>{this.state.EnergyPkg}</td>
-              <td className="dataName">Energía de RAM (J):</td>
-              <td>{this.state.EnergyRAM}</td>
-              <td className="dataName">Instrucciones:</td>
-              <td>{this.state.Instructions}</td>
-            </tr>
-            <tr>
-              <td className="dataName">Lecturas de caché último nivel:</td>
-              <td>{this.state.LLCLoads}</td>
-              <td className="dataName">Fallos de caché último nivel:</td>
-              <td>{this.state.LLCLoadMisses}</td>
-              <td className="dataName">Escrituras de caché último nivel:</td>
-              <td>{this.state.LLCStores}</td>
-              <td className="dataName">Fallos de escrituras de caché último nivel:</td>
-              <td>{this.state.LLCStoresMisses}</td>
-            </tr>
-            <tr>
-              <td className="dataName">Lecturas de caché nivel 1:</td>
-              <td>{this.state.L1DcacheLoads}</td>
-              <td className="dataName">Fallos de caché nivel 1:</td>
-              <td>{this.state.L1DcacheLoadMisses}</td>
-              <td className="dataName">Escrituras de caché nivel 1:</td>
-              <td>{this.state.L1DcacheStores}</td>
-              <td className="dataName">Fallos generales de caché:</td>
-              <td>{this.state.CacheMisses}</td>
-            </tr>
-            <tr>
-              <td className="dataName">Referencias de caché:</td>
-              <td>{this.state.CacheReferences}</td>
-              <td className="dataName">Saltos:</td>
-              <td>{this.state.Branches}</td>
-              <td className="dataName">Fallos de saltos:</td>
-              <td>{this.state.BranchMisses}</td>
-              <td className="dataName">Ciclos de CPU:</td>
-              <td>{this.state.CpuCycles}</td>
-            </tr>
-            <tr>
-              <td className="dataName">Tiempo de ejecución (ns):</td>
-              <td>{this.state.DurationTime}</td>
-              <td className="dataName">Potencia de Núcleos (W):</td>
-              <td>{this.state.PowerCores}</td>
-              <td className="dataName">Potencia de Paquete (W):</td>
-              <td>{this.state.PowerPkg}</td>
-              <td className="dataName">Potencia de RAM (W):</td>
-              <td>{this.state.PowerRAM}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td className="dataName">Energía de Nucleos (J):</td>
+                <td>{this.state.EnergyCores}</td>
+                <td className="dataName">Energía de Paquete (J):</td>
+                <td>{this.state.EnergyPkg}</td>
+                <td className="dataName">Energía de RAM (J):</td>
+                <td>{this.state.EnergyRAM}</td>
+                <td className="dataName">Instrucciones:</td>
+                <td>{this.state.Instructions}</td>
+              </tr>
+              <tr>
+                <td className="dataName">Lecturas de caché último nivel:</td>
+                <td>{this.state.LLCLoads}</td>
+                <td className="dataName">Fallos de caché último nivel:</td>
+                <td>{this.state.LLCLoadMisses}</td>
+                <td className="dataName">Escrituras de caché último nivel:</td>
+                <td>{this.state.LLCStores}</td>
+                <td className="dataName">Fallos de escrituras de caché último nivel:</td>
+                <td>{this.state.LLCStoresMisses}</td>
+              </tr>
+              <tr>
+                <td className="dataName">Lecturas de caché nivel 1:</td>
+                <td>{this.state.L1DcacheLoads}</td>
+                <td className="dataName">Fallos de caché nivel 1:</td>
+                <td>{this.state.L1DcacheLoadMisses}</td>
+                <td className="dataName">Escrituras de caché nivel 1:</td>
+                <td>{this.state.L1DcacheStores}</td>
+                <td className="dataName">Fallos generales de caché:</td>
+                <td>{this.state.CacheMisses}</td>
+              </tr>
+              <tr>
+                <td className="dataName">Referencias de caché:</td>
+                <td>{this.state.CacheReferences}</td>
+                <td className="dataName">Saltos:</td>
+                <td>{this.state.Branches}</td>
+                <td className="dataName">Fallos de saltos:</td>
+                <td>{this.state.BranchMisses}</td>
+                <td className="dataName">Ciclos de CPU:</td>
+                <td>{this.state.CpuCycles}</td>
+              </tr>
+              <tr>
+                <td className="dataName">Tiempo de ejecución (ns):</td>
+                <td>{this.state.DurationTime}</td>
+                <td className="dataName">Potencia de Núcleos (W):</td>
+                <td>{this.state.PowerCores}</td>
+                <td className="dataName">Potencia de Paquete (W):</td>
+                <td>{this.state.PowerPkg}</td>
+                <td className="dataName">Potencia de RAM (W):</td>
+                <td>{this.state.PowerRAM}</td>
+              </tr>
+            </tbody>
           </table>
           <p style={{"text-align": "center"}}> *La línea naranja (y púrpura) en los gráficos representan los promedios.</p>
         </div>
@@ -133,12 +135,19 @@ class RenderTable extends Component {
 function RenderImage(props){
   let asd2 = useNavigate();
   var asd = useParams().codename;
+  var name = useLocation().state.name;
   const link = "http://keira.inf.udec.cl/static/"+asd+"/";
+
+  useEffect(()=>{
+    document.title = "Power-tester: " + name;
+  })
+
   return (
     <div>
       <div class="row">
         <button type="button" className="buttonv" onClick={()=>asd2(-1)}> Volver</button>
         <button type="button" className="buttonv" onClick={handleDownload} style={{float: "right"}}> Descargar CSV </button>
+        <h1>{name}</h1>
       </div>
       <div class="cat">
         <h2>Tabla de Promedios</h2>
@@ -216,7 +225,8 @@ function RenderForm(){
   const [code, setCode] = useState('');
   const [codename, setCodename] = useState();
   const [status, setStatus] = useState('Esperando entrada');
-  const [check, setCheck] = useState(true)
+  const [check, setCheck] = useState(true);
+  const [name, setName] = useState('test');
   var flag = '';
   var intervalID = 0;
   let navigate = useNavigate();
@@ -247,6 +257,9 @@ function RenderForm(){
     setCode(event.target.value);
     setCheck(true);
   }
+  function handleChange2(event){
+    setName(event.target.value);
+  }
 
   function getStatusfromServer(match){
     axios.get('http://keira.inf.udec.cl/checkstatus/'+match)
@@ -274,18 +287,22 @@ function RenderForm(){
   return (<React.Fragment>
             <div><h1>Power Tester</h1></div>
             <form onSubmit={handleSubmit}>
-            <div><label htmlFor="code">Inserte código </label></div>
-            <textarea type="text" id="code" name="code" rows="20" cols="100" value={code} onChange={handleChange}></textarea>
-            <aside>
-              <h2> Estado del Código </h2>
               <div>
-                <textarea type="text" id="status" value={status} disabled rows="10" cols="50"></textarea>
+                <label htmlFor="title">Ingrese un nombre al código (para identificarlo en ventanas o pestañas)</label><br/>
+                <input type="text" value={name} onChange={handleChange2}/>
               </div>
-              <button type="button" className="buttonv" onClick={()=>navigate('/code/'+codename, {replace: false})} disabled={check}> Check Code</button>
-            </aside>
-            <div>
-            <input type="submit" className="buttonv" value="Subir"/>
-            </div>
+              <div><label htmlFor="code">Inserte código </label></div>
+              <textarea type="text" id="code" name="code" rows="20" cols="100" value={code} onChange={handleChange}></textarea>
+              <aside>
+                <h2> Estado del Código </h2>
+                <div>
+                  <textarea type="text" id="status" value={status} disabled rows="10" cols="50"></textarea>
+                </div>
+                <button type="button" className="buttonv" onClick={()=>navigate('/code/'+codename, {replace: false, state: {'name': name}})} disabled={check}>Ver estadísticas</button>
+              </aside>
+              <div>
+                <input type="submit" className="buttonv" value="Subir"/>
+              </div>
             </form>
           </React.Fragment>)
 }
