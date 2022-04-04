@@ -122,6 +122,7 @@ class RenderTable extends Component {
               <td>{this.state.PowerRAM}</td>
             </tr>
           </table>
+          <p style={{"text-align": "center"}}> *La línea naranja (y púrpura) en los gráficos representan los promedios.</p>
         </div>
       </React.Fragment>
     )
@@ -170,7 +171,7 @@ function RenderImage(props){
         </div>
       </div>
       <div class="cat">
-        <h2>Estadísticas de Último nivel de Caché</h2>
+        <h2>Estadísticas de Último nivel de Caché (LLC)</h2>
         <div class="row">
           <img src={link+"fig4.svg"} alt="img4"></img>
           <img src={link+"fig5.svg"} alt="img5"></img>
@@ -181,7 +182,7 @@ function RenderImage(props){
         </div>
       </div>
       <div class="cat">
-        <h2>Estadísticas de Caché nivel 1</h2>
+        <h2>Estadísticas de Caché nivel 1 (L1D)</h2>
         <div class="row">
           <img src={link+"fig8.svg"} alt="img8"></img>
           <img src={link+"fig9.svg"} alt="img9"></img>
@@ -221,8 +222,9 @@ function RenderForm(){
   let navigate = useNavigate();
 
   function handleSubmit(event){
-    alert('Sent!');
+    alert('¡Enviado! Espere por el estado del código');
     event.preventDefault();
+    setStatus('Esperando respuesta');
     var bodyFormData = new FormData();
     bodyFormData.append('code', code);
     axios({
