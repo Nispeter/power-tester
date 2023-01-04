@@ -1,12 +1,14 @@
 # Plataforma de Medicion de Energia de Codigos C++
 
-Una aplicacion web que un cliente accede mediante una pagina web. El cliente envia un codigo c++ que quiera medir a traves de la pagina, y una red de computadores llamados medidores, lo miden para obtener estadisticas. Estas estadisticas se pueden utilizar para estandarizar la forma en que los codigos se miden, evitando el bias de las caracteristicas de los computadores. Los medidores utilizan la tecnologia de Intel RAPL, accedida mediante ```perf```.
+Una aplicacion web que un cliente accede mediante una pagina web. El cliente envia un codigo c++ que quiera medir a traves de la pagina, y una red de computadores llamados medidores, lo miden para obtener estadisticas. Estas estadisticas se pueden utilizar para estandarizar la forma en que los codigos se miden, evitando el bias de las caracteristicas de los computadores. Los medidores utilizan la tecnologia de Intel RAPL para obtener las estadisticas, accedida mediante ```perf```.
 
 ![general](https://user-images.githubusercontent.com/26441581/210628228-049075b1-c714-453e-88a9-84c1e5d74113.png)
 
 Estructura interna.
 
 ### Imagenes de la utilizacion de la plataforma, de manera secuencial.
+
+Interfaz hecha utilizando React.
 
 ![plataforma pag1](https://user-images.githubusercontent.com/26441581/210628436-1a55d37d-bdce-4b02-999e-e5d66d55775d.PNG)
 
