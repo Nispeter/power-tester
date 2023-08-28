@@ -27,6 +27,37 @@
 .App-link {
   color: #61dafb;
 }
+#sidebar {
+  width: 250px;
+  position: fixed;
+  top: 0;
+  left: -250px;
+  height: 100vh;
+  background-color: #111;
+  transition: all 0.3s;
+  overflow-y: auto;
+}
+
+#content {
+  margin-left: 0;
+  transition: all 0.3s;
+  padding: 20px;
+}
+
+#sidebar.active {
+  left: 0;
+}
+
+#sidebarCollapse {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
 
 @keyframes App-logo-spin {
   from {
