@@ -7,7 +7,7 @@ function RenderImage() {
   const asd2 = useNavigate();
   const asd = useParams().codename;
   const name = useLocation().state.name;
-  const link = `http://keira.inf.udec.cl/static/${asd}/`;
+  const link = `http://127.0.0.1/static/${asd}/`;
 
   useEffect(() => {
     document.title = `Power-tester: ${name}`;
@@ -76,7 +76,7 @@ function RenderImage() {
 
   function handleDownload(event){
     axios({
-      url: 'http://keira.inf.udec.cl/static/'+asd+'/'+asd+'ResultsFinal.csv',
+      url: 'http://127.0.0.1/static/'+asd+'/'+asd+'ResultsFinal.csv',
         method: 'GET',
         responseType: 'blob', // important
       })

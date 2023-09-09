@@ -5,7 +5,7 @@ import subprocess as sub
 # import sys
 import time
 
-HOST = '192.168.56.1'  # The server's hostname or IP address
+HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 50000        # The port used by the server
 
 
@@ -38,7 +38,7 @@ while True:
     # ejecutar script de pruebas
     sub.run(["g++", name], universal_newlines=True)  # agregar optimizaciones
     try:
-        aux = sub.run(["bash", "measurescript.sh", "a.out"], capture_output=True, universal_newlines=True, timeout=45)
+        aux = sub.run(["bash", "measurescript2.sh", "a.out"], capture_output=True, universal_newlines=True, timeout=45)
     except sub.TimeoutExpired:
         # ver que hacer en caso de error
         pass

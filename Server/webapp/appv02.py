@@ -194,7 +194,7 @@ def receive_data(conn, ident):
 def slave_serve(file_dir, name, cmd):
     port = 50000
     port2 = 60000
-    host = '152.74.52.77'
+    host = '127.0.0.1'
     print(file_dir, name, cmd)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

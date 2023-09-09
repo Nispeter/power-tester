@@ -2,6 +2,36 @@
 
 Una aplicacion web que un cliente accede mediante una pagina web. El cliente envia un codigo c++ que quiera medir a traves de la pagina, y una red de computadores llamados medidores, lo miden para obtener estadisticas. Estas estadisticas se pueden utilizar para estandarizar la forma en que los codigos se miden, evitando el bias de las caracteristicas de los computadores. Los medidores utilizan la tecnologia de Intel RAPL para obtener las estadisticas, accedida mediante ```perf```.
 
+## Como correr plataforma de manera local
+### Puertos asignados 
+- 5000 React App
+- 50000 app.y
+- 60000 slave.py
+**Cambiar las direcciones a local**
+En cualquier archivo que aparezcan las siguientes direcciones, cambiar por su contraparte respectiva:
+- 192.168.56.1 -> 127.0.0.1
+- http://keira.inf.udec.cl/'+this.props.code+'/mean -> http://127.0.0.1/'+this.props.code+'/mean
+### Correr React webapp
+En directorio power-tester/Client/my-app/
+    npm start 
+### Setup de ambiente 
+El ambiente es requierido para administrar las dependencias del proyecto.
+En directorio power-tester/Server/
+conda env create -f powertester.yml
+conda activate memoria
+
+en app.py usar measurescript2.sh y en este ultimo agregar al comando perf :'duartion_time'
+### Setup de perf
+Hay que cambiar los permisos de perf
+Al realizar sudo nano /proc/sys/kernel/perf_event_paranoid
+cambiar el valor predefinido de 4 -> -1
+### Correr Servidor 
+En directorio power-tester/Server/webapp
+python3 app.py
+### Correr Medidor 
+En directorio power-tester/Server/
+python3 Slave.py
+
 ![general](https://user-images.githubusercontent.com/26441581/210628228-049075b1-c714-453e-88a9-84c1e5d74113.png)
 
 Estructura interna.

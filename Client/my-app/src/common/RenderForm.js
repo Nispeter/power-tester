@@ -26,7 +26,7 @@ function RenderForm() {
     bodyFormData.append("code", code);
     axios({
       method: "post",
-      url: "http://keira.inf.udec.cl/sendcode",
+      url: "http://127.0.0.1:5000/sendcode",
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     })
@@ -50,7 +50,7 @@ function RenderForm() {
 
   function getStatusfromServer(match) {
     axios
-      .get("http://keira.inf.udec.cl/checkstatus/" + match)
+      .get("http://127.0.0.1:5000/checkstatus/" + match)
       .then((response) => {
         if (response.data === "IN QUEUE") setStatus("En cola");
         else if (response.data === "DONE") setStatus("Listo");

@@ -1,4 +1,5 @@
 # , make_response , send_file
+# Import necessary modules and libraries
 from flask import Flask, request, render_template, abort, url_for, redirect, make_response, jsonify
 from flask_cors import CORS
 import matplotlib.pyplot as plt
@@ -14,64 +15,41 @@ import sys
 import numpy as np
 #import os
 
+# Initialize the Flask app
 app = Flask(__name__)
 
+# Enable Cross-Origin Resource Sharing (CORS)
 CORS(app)
 
+# Create an empty list to store measurement queue items
 queuelist = []
 # statusdict = OrderedDict()
+
+# Initialize variables to keep track of active measurement machines
 activeS = 0  # medidores activos (medidores que han respondido al servidor)
 activeR = 0
+
+# Define colors, units of measurement, and titles for graphs
 color = ['red', 'green', 'blue', 'orange', 'purple']
 unidadesdemedida = ['Joules', 'Joules', 'Joules', 'Instrucciones', 'Lecturas', 'Fallos', 'Escrituras', 'Fallos', 'Lecturas', 'Fallos', 'Escrituras', 'Fallos', 'Referencias', 'Saltos', 'Fallos', 'Ciclos', 'Nanosegundos']
 titulos = ['Energía de Nucleos', 'Energía de Paquete', 'Energía de RAM', 'Instrucciones', 'Lecturas de LLC', 'Fallos de lectura de LLC', 'Escrituras de LLC', 'Fallas de escritura de LLC', 'Lecturas de L1D', 'Fallas de lectura de L1D', 'Escrituras de L1D', 'Fallos de caché', 'Referencias de caché', 'Saltos', 'Fallas en saltos', 'Ciclos de CPU', 'Tiempo de ejecución']
 
-def graph_results(name):
-    print("Plotting " + name + "!")
-    # print(activeS, activeR)
+# Define routes and their respective functions
+# Function to plot and save graphs from measurement results
+def create_directory(name):
+    print("Creating directory for " + name + "!")
     subprocess.run(["/bin/mkdir", "static/" + name], universal_newlines=True)
 
-    #El siguiente bloque es el soporte iniciar de medicion, que permite el uso de multiples maquinas medidoras
-    #como solo existe un medidor, no se utiliza. Ademas, no posee soporte para graficar multiples
-    #graficas de barras de potencia(watts) en una sola figura.
-    #los archivos recibidos de los medidores aun tendran un valor que los diferencia (por ejemplo,
-    # la medicion de la maquina 1 tendra un valor 0 en el csv de resultado, el de la maquina2, 1, y asi sucesivamente)
+def read_csv_data(name):
+    nameresult = name + "Results" + str(0) + ".csv"
+    return pd.read_csv(nameresult)
 
-    # auxList = []            
-    # for i in range(activeR):
-    #     nameresult = name + "Results" + str(i) + ".csv"
-    #     auxList.append(pd.read_csv(nameresult))
-
-    # for columni in range(17):
-    #     fig, ax = plt.subplots()
-    #     for machine in range(activeR):
-    #         df = auxList[machine]
-    #         try:
-    #             df.plot(
-    #                 y=columni, use_index=True, color=color[machine], title=df.columns[columni],
-    #                 legend=None, xlabel='Iterations',
-    #                 ylabel=unidadesdemedida[columni], style='--', marker='.', ax=ax, label="Maquina "+str(machine))
-    #         except TypeError:
-    #             continue
-    #     ax.ticklabel_format(scilimits=[-5,5])
-    #     plt.minorticks_on()
-    #     plt.grid()
-    #     if ax.lines:
-    #         plt.savefig("static/" + name + "/fig" + str(columni) + ".svg", format='svg')
-    #     plt.close(fig)
-    # for machine in range(activeR):
-    #     nameresult = name + "Results" + str(machine) + ".csv"
-    #     subprocess.run(["/bin/mv", nameresult, "static/" + name])
-    # print("Done!")
-
-    #leer archivo results0 puesto que solo existe 1 medidor
-
-    nameresult = name + "Results"+ str(0) + ".csv"
-    csvobj = pd.read_csv(nameresult)
+def calculate_normalized_power(csvobj):
     for i in range(3):
         aux2 = []
         for j in range(30):
-            temp = csvobj.iloc[j,16] / float(10**9)
+            print(j)
+            temp = csvobj.iloc[j, 16] / float(10**9)
             temp2 = csvobj.iloc[j, i] / temp
             temp2 = round(temp2, 3)
             aux2.append(temp2)
@@ -81,9 +59,14 @@ def graph_results(name):
             csvobj['PowerPkg'] = aux2
         if i == 2:
             csvobj['PowerRAM'] = aux2
+    return csvobj
+
+def save_normalized_data(name, csvobj):
     with open("static/"+name+"/"+name+"ResultsFinal.csv", 'x') as w:
         csvobj.to_csv(w, index=False)
 
+def plot_graphs(name, csvobj):
+    nameresult = name + "Results" + str(0) + ".csv"
     for columni in range(17):
         fig, ax = plt.subplots()
         df = csvobj
@@ -109,6 +92,7 @@ def graph_results(name):
                     ylabel=unidadesdemedida[columni], style='--', marker='.', ax=ax, label="")
                 ax.axhline(mean(test), label='Promedio', color='orange')
             except TypeError:
+                print("err")
                 continue
         if(columni>3):
             plt.ticklabel_format(scilimits=[-5,5])
@@ -120,7 +104,15 @@ def graph_results(name):
     subprocess.run(["/bin/mv", nameresult, "static/" + name])
     print("Done!")
 
+def graph_results(name):
+    create_directory(name)
+    csvobj = read_csv_data(name)
+    csvobj = calculate_normalized_power(csvobj)
+    save_normalized_data(name, csvobj)
+    plot_graphs(name, csvobj)
 
+
+# Function to manage sending data to measurement machines
 def send_manager(s, json_string, name):
     global activeS
     firsttime = True
@@ -145,12 +137,12 @@ def send_manager(s, json_string, name):
             s.settimeout(5.0)
     activeS = counter
 
-
+# Function to send program code to a measurement machine
 def send_program(conn, json_string):
     with conn:
         conn.sendall(json_string.encode())
 
-
+# Function to manage receiving data from measurement machines
 def recv_manager(s, name):
     global activeR
     counter = 0
@@ -176,7 +168,7 @@ def recv_manager(s, name):
         # inicia conteo de 5 segundos para recibir archivos
     activeR = counter
 
-
+# Function to receive and process data from a measurement machine
 def receive_data(conn, ident):
     with conn:
         payload = b''
@@ -190,11 +182,11 @@ def receive_data(conn, ident):
         with open(name, 'w') as f:
             f.write(payloadDict["results"])
 
-
+# Function to serve as a measurement machine
 def slave_serve(file_dir, name, cmd):
-    port = 50000
-    port2 = 60000
-    host = '152.74.52.77'
+    port = 50_000
+    port2 = 60_000
+    host = '127.0.0.1'
     print(file_dir, name, cmd)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -227,6 +219,7 @@ def slave_serve(file_dir, name, cmd):
             time.sleep(1)
             #print('waiting for sock', os.getpid())
 
+# Function to perform a security check before executing received code (Placeholder)
 def security_check():
     pass
 
@@ -235,6 +228,7 @@ def security_check():
 def hola():
     t = subprocess.run(['ls', 'status'], capture_output=True, universal_newlines=True)
     return str(t.stdout)
+
 
 @app.route('/<code>/mean')
 def jsonifyMean(code):
@@ -266,7 +260,7 @@ def test():
 def home():
     return redirect(url_for('test'))
 
-
+# Route to check the status of a code execution
 @app.route('/checkstatus/<code>', methods=['GET'])
 # crear ruta para ver status de codigo
 def tmr(code):
@@ -279,7 +273,7 @@ def tmr(code):
     response.headers["content-type"] = "text/plain;charset=UTF-8"
     return response
 
-
+# Route to check the status of measurement machines
 @app.route('/checkmeasurers', methods=['GET'])
 def check():
     if abs(activeR - activeS) != 0:
@@ -287,7 +281,7 @@ def check():
     else:
         return 'Todo OK!', 200
 
-
+# Route to receive and process code from clients
 @app.route('/sendcode', methods=['POST'])          # endpoint Recibir Codigo
 def cap_code():
     code = request.form['code']
@@ -345,16 +339,16 @@ def cap_code():
     # print(statusdict, len(statusdict))
     return str(name), 200
 
-
+# Function to run the queue manager thread
 @app.before_first_request
 def spawner():
     th.Thread(target=queue_manager, daemon=True).start()
 
-
+# Queue manager function to handle the execution queue
 def queue_manager():        # administrador de cola
     while True:
         if not queuelist:
-            # print('Waiting...')
+            print('Waiting...')
             s = subprocess.run(
                 "ls status| wc -l",
                 capture_output=True, universal_newlines=True, shell=True)
@@ -378,6 +372,7 @@ def queue_manager():        # administrador de cola
                 r = open("status/"+nextInline[1],'r+')
                 asd2 = r.read()
                 if asd2 != 'ERROR: no machines available':
+                    print("prev-graph_results")
                     graph_results(nextInline[1])
                     print(nextInline, 'served!')
                     r.seek(0)
@@ -389,5 +384,6 @@ def queue_manager():        # administrador de cola
 # agregar mensajes de error en lista de status
 
 
+# Start the Flask app if the script is run as the main program
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

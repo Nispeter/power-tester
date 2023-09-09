@@ -10,7 +10,7 @@ cols=("EnergyCores" "EnergyPkg" "EnergyRAM"
 	"Instructions" "LLCLoads"
       "LLCLoadMisses" "LLCStores" "LLCStoresMisses" "L1DcacheLoads"
       "L1DcacheLoadMisses" "L1DcacheStores" "CacheMisses"
-      "CacheReferences" "Branches" "Branch-Misses" "CpuCycles")
+      "CacheReferences" "Branches" "Branch-Misses" "CpuCycles" "DurationTime")
 
 
 numcols=$(echo ${cols[@]})
@@ -22,7 +22,7 @@ for((j=0; j<30; j++))
 do
 	#echo "loop ${j}"
 	perf stat -a -x';' -o ${outfile}.tmp -e \
-		    	     power/energy-cores/,power/energy-pkg/,power/energy-ram/,instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles ./${executable} >> ${outfile} #<- agregar soporte de argumentos
+		    	     power/energy-cores/,power/energy-pkg/,power/energy-ram/,instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles,duration_time ./${executable} >> ${outfile} #<- agregar soporte de argumentos
 	cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/,/./g' | sed 's/\s\+/,/g' >> ${outfile}
 done
 

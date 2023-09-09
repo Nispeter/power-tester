@@ -29,7 +29,7 @@ class RenderTable extends Component {
 
   componentDidMount(){
     axios({
-      url: 'http://keira.inf.udec.cl/'+this.props.code+'/mean',
+      url: 'http://127.0.0.1/'+this.props.code+'/mean',
         method: 'GET'
       })
     .then((response) => {

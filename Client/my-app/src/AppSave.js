@@ -55,7 +55,7 @@ class RenderTable extends Component {
 
   componentDidMount(){
     axios({
-      url: 'http://keira.inf.udec.cl/'+this.props.code+'/mean',
+      url: 'http://127.0.0.1/'+this.props.code+'/mean',
         method: 'GET'
       })
     .then((response) => {
@@ -136,7 +136,7 @@ function RenderImage(props){
   let asd2 = useNavigate();
   var asd = useParams().codename;
   var name = useLocation().state.name;
-  const link = "http://keira.inf.udec.cl/static/"+asd+"/";
+  const link = "http://127.0.0.1/static/"+asd+"/";
 
   useEffect(()=>{
     document.title = "Power-tester: " + name;
@@ -205,7 +205,7 @@ function RenderImage(props){
 
   function handleDownload(event){
     axios({
-      url: 'http://keira.inf.udec.cl/static/'+asd+'/'+asd+'ResultsFinal.csv',
+      url: 'http://127.0.0.1/static/'+asd+'/'+asd+'ResultsFinal.csv',
         method: 'GET',
         responseType: 'blob', // important
       })
@@ -239,7 +239,7 @@ function RenderForm(){
     bodyFormData.append('code', code);
     axios({
         method: 'post',
-        url: 'http://keira.inf.udec.cl/sendcode',
+        url: 'http://127.0.0.1/sendcode',
         data: bodyFormData,
         headers: {'Content-Type': 'multipart/form-data'}
       })
@@ -262,7 +262,7 @@ function RenderForm(){
   }
 
   function getStatusfromServer(match){
-    axios.get('http://keira.inf.udec.cl/checkstatus/'+match)
+    axios.get('http://127.0.0.1/checkstatus/'+match)
         .then((response) =>{
           if(response.data === 'IN QUEUE')
             setStatus('En cola')
