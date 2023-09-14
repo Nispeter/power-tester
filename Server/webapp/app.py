@@ -92,7 +92,7 @@ def plot_graphs(name, csvobj):
                     ylabel=unidadesdemedida[columni], style='--', marker='.', ax=ax, label="")
                 ax.axhline(mean(test), label='Promedio', color='orange')
             except TypeError:
-                print("err")
+                print("err: ",TypeError )
                 continue
         if(columni>3):
             plt.ticklabel_format(scilimits=[-5,5])
@@ -345,42 +345,74 @@ def spawner():
     th.Thread(target=queue_manager, daemon=True).start()
 
 # Queue manager function to handle the execution queue
-def queue_manager():        # administrador de cola
-    while True:
-        if not queuelist:
-            print('Waiting...')
-            s = subprocess.run(
-                "ls status| wc -l",
-                capture_output=True, universal_newlines=True, shell=True)
-            if int(s.stdout) >= 50:           # Usar Log
-                s2 = subprocess.run(
-                    "find status -type f -printf '%T+ %p\n' | sort | head -1",
-                    capture_output=True, universal_newlines=True, shell=True)
-                temp = s2.stdout.split()
-                temp2 = temp[1].split('/')
-                print("Removed element " + temp[1] + "! from status files", file=sys.stderr)
-                subprocess.run(["/bin/rm", temp[1]], timeout=15)
-                subprocess.run(["/bin/rm", "static/" + temp2[1], "-rf"], timeout=15)
-            time.sleep(10)
-        else:
-            nextInline = queuelist.pop()
-            r = open("status/"+nextInline[1],'r')
-            asd = r.read()
-            r.close()
-            if asd == 'IN QUEUE':
-                slave_serve(nextInline[0], nextInline[1], nextInline[2])
-                r = open("status/"+nextInline[1],'r+')
+
+# Check if the queue is empty
+def is_queue_empty():
+    """Return True if the queue list is empty, otherwise return False."""
+    return not queuelist
+
+# Get the number of files in the 'status' directory
+def get_status_file_count():
+    """Return the count of files in the 'status' directory."""
+    s = subprocess.run(
+        "ls status| wc -l",
+        capture_output=True, universal_newlines=True, shell=True)
+    return int(s.stdout)
+
+# Identify the oldest file in the 'status' directory
+def get_oldest_status_file():
+    """Return the path of the oldest file in the 'status' directory."""
+    s2 = subprocess.run(
+        "find status -type f -printf '%T+ %p\n' | sort | head -1",
+        capture_output=True, universal_newlines=True, shell=True)
+    temp = s2.stdout.split()
+    return temp[1]
+
+# Remove a specified file
+def remove_status_file(file_path):
+    """Remove the specified file."""
+    print("Removed element " + file_path + "! from status files", file=sys.stderr)
+    subprocess.run(["/bin/rm", file_path], timeout=15)
+
+# Remove the associated static file for a given status file
+def remove_associated_static_file(file_path):
+    """Remove the associated static file for a given status file."""
+    temp2 = file_path.split('/')
+    subprocess.run(["/bin/rm", "static/" + temp2[1], "-rf"], timeout=15)
+
+# Process and serve the next inline item from the queue
+def serve_next_inline():
+    """Process and serve the next inline item from the queue."""
+    next_inline = queuelist.pop()
+    with open("status/" + next_inline[1], 'r') as r:
+        asd = r.read()
+        if asd == 'IN QUEUE':
+            slave_serve(next_inline[0], next_inline[1], next_inline[2])
+            with open("status/" + next_inline[1], 'r+') as r:
                 asd2 = r.read()
                 if asd2 != 'ERROR: no machines available':
                     print("prev-graph_results")
-                    graph_results(nextInline[1])
-                    print(nextInline, 'served!')
+                    graph_results(next_inline[1])
+                    print(next_inline, 'served!')
                     r.seek(0)
                     r.write('DONE')
                     r.truncate()
                 else:
-                    print(nextInline, 'failed: No machines available!')
-                r.close()
+                    print(next_inline, 'failed: No machines available!')
+
+# The main queue manager function
+def queue_manager():
+    """Main function to manage the queue. Runs indefinitely."""
+    while True:
+        if is_queue_empty():
+            print('Waiting...')
+            if get_status_file_count() >= 50:
+                oldest_file = get_oldest_status_file()
+                remove_status_file(oldest_file)
+                remove_associated_static_file(oldest_file)
+            time.sleep(10)
+        else:
+            serve_next_inline()
 # agregar mensajes de error en lista de status
 
 

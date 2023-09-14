@@ -1,61 +1,82 @@
 import socket
 import json
 import subprocess as sub
-# import os
-# import sys
 import time
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 50000        # The port used by the server
 
-
-while True:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+def connect_to_server(host, port):
+    """Establish connection to a server."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
         try:
-            s.connect((HOST, PORT))
+            s.connect((host, port))
+            return s
         except ConnectionRefusedError:
-            print('Waiting for connection')         # agregar limite de intentos
+            print('Waiting for connection')
             time.sleep(5)
-            continue
-        payload = b''
-        while True:
-            try:
-                data = s.recv(1024)
-                if not data:
-                    break
-            except ConnectionResetError:
+
+def receive_payload(s):
+    """Receive and decode payload from the server."""
+    payload = b''
+    while True:
+        try:
+            data = s.recv(1024)
+            if not data:
                 break
             payload += data
-        payloadDict = json.loads(payload.decode())
-        nameRequest = payloadDict["name"]
-        name = nameRequest + ".cpp"
-        with open(name, 'w') as f:
-            f.write(payloadDict["code"])
+        except ConnectionResetError:
+            break
+    return json.loads(payload.decode())
 
-    print('Received', payloadDict["name"])
+def write_code_to_file(name_request, code):
+    """Write received code to a .cpp file."""
+    name = name_request + ".cpp"
+    with open(name, 'w') as f:
+        f.write(code)
+    return name
 
-
-    # ejecutar script de pruebas
-    sub.run(["g++", name], universal_newlines=True)  # agregar optimizaciones
+def compile_and_execute(name):
+    """Compile and execute the code."""
+    sub.run(["g++", name], universal_newlines=True)
     try:
         aux = sub.run(["bash", "measurescript2.sh", "a.out"], capture_output=True, universal_newlines=True, timeout=45)
     except sub.TimeoutExpired:
-        # ver que hacer en caso de error
-        pass
-    resultname = aux.stdout
-    resultname = resultname.strip()
+        return ""
+    return aux.stdout.strip()
 
-    PORT2 = 60000
-
+def send_results(host, port, name_request, result_name):
+    """Send the results to the server."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
-        s2.connect((HOST, PORT2))
-        with open(resultname, 'r') as f:
+        s2.connect((host, port))
+        with open(result_name, 'r') as f:
             results = f.read()
-        m = {"name": nameRequest + "Results", "results": results}
-        json_string = json.dumps(m)
-        s2.sendall(json_string.encode())
+        payload = {"name": name_request + "Results", "results": results}
+        s2.sendall(json.dumps(payload).encode())
 
-    print('Sent', m["name"])
+def cleanup_files(*files):
+    """Remove specified files."""
+    sub.run(["rm"] + list(files), timeout=15)
 
-    sub.run(["rm", resultname, name, 'a.out'], timeout=15)
-    time.sleep(10)
+def main():
+    while True:
+        # Connect to the server and receive payload
+        with connect_to_server(HOST, PORT) as s:
+            payload_dict = receive_payload(s)
+        print('Received', payload_dict["name"])
+
+        # Save the code to file and compile & execute
+        filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
+        result_name = compile_and_execute(filename)
+        
+        # Send the results back to the server
+        send_results(HOST, 60000, payload_dict["name"], result_name)
+        print('Sent', payload_dict["name"] + "Results")
+
+        # Cleanup created files
+        cleanup_files(result_name, filename, 'a.out')
+        time.sleep(10)
+
+if __name__ == "__main__":
+    main()
