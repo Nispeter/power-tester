@@ -18,6 +18,7 @@ function RenderForm() {
   useEffect(() => {
     document.title = "Power Tester";
   }, []);
+  
   function handleSubmit(event) {
     alert("¡Enviado! Espere por el estado del código");
     event.preventDefault();

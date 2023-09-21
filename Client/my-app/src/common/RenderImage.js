@@ -7,7 +7,7 @@ function RenderImage() {
   const asd2 = useNavigate();
   const asd = useParams().codename;
   const name = useLocation().state.name;
-  const link = `http://127.0.0.1/static/${asd}/`;
+  const link = `http://127.0.0.1:5000/static/${asd}/`;
 
   useEffect(() => {
     document.title = `Power-tester: ${name}`;
