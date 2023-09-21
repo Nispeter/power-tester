@@ -24,7 +24,9 @@ function RenderForm() {
     event.preventDefault();
     setStatus("Esperando respuesta");
     var bodyFormData = new FormData();
-    bodyFormData.append("code", code);
+    if (code) {
+      bodyFormData.append("code", code);
+    }
     axios({
       method: "post",
       url: "http://127.0.0.1:5000/sendcode",
@@ -48,6 +50,17 @@ function RenderForm() {
   function handleChange2(event) {
     setName(event.target.value);
   }
+
+  const fileInput = React.useRef(null);
+  function handleFileChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => setCode(e.target.result);
+      reader.readAsText(file);
+    }
+  }
+
 
   function getStatusfromServer(match) {
     axios
@@ -98,12 +111,7 @@ function RenderForm() {
                 <label for="formFileDisabled" class="form-label">
                   Disabled file input example
                 </label>
-                <input
-                  class="form-control"
-                  type="file"
-                  id="formFileDisabled"
-                  disabled
-                />
+                <input ref={fileInput} class="form-control" type="file" id="formFile" onChange={handleFileChange}/>
                 <input type="submit" className="buttonv" value="Subir" />
               </div>
             </div>
