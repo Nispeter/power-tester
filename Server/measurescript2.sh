@@ -17,8 +17,9 @@ numcols=$(echo ${cols[@]})
 columns=$(echo ${numcols// /,})
 
 echo $columns >> ${outfile}
+SAMPLES=30
 
-for((j=0; j<30; j++))
+for((j=0; j<SAMPLES; j++))
 do
 	#echo "loop ${j}"
 	perf stat -a -x';' -o ${outfile}.tmp -e \

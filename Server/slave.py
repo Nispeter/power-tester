@@ -59,23 +59,51 @@ def cleanup_files(*files):
     """Remove specified files."""
     sub.run(["rm"] + list(files), timeout=15)
 
+def lcs_test(name, code):
+    # Save the user's code to a temporary file and compile it.
+    with open("temporary.cpp", "w", newline="\n") as f:
+        f.write(code)
+
+    # Compile the code.
+    compilation_result = subprocess.run(["g++", "temporary.cpp", "-o", "temporary.out"], capture_output=True)
+    if compilation_result.returncode != 0:
+        return f"Error in {name}: Compilation Error"
+
+    # Define test cases for LCS.
+    test_cases = [("abcd", "acdf"), ("xyz", "xyz"), ...]  # Add as many test cases as required.
+    
+    results = []
+    # Iterate over each test case.
+    for i, (str1, str2) in enumerate(test_cases):
+        result = subprocess.run(["./temporary.out"], input=str1 + "\n" + str2, text=True, capture_output=True)
+        results.append(result.stdout.strip())
+
+    # Return a joined string of results or however you wish to format it.
+    return "\n".join(results)
+
 def main():
     while True:
         # Connect to the server and receive payload
         with connect_to_server(HOST, PORT) as s:
             payload_dict = receive_payload(s)
-        print('Received', payload_dict["name"])
-
-        # Save the code to file and compile & execute
-        filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
-        result_name = compile_and_execute(filename)
         
+        if "LCS" in payload_dict["name"]:
+            # Handle LCS task specially
+            # Assuming you'll add an "lcs_test" function which compiles, runs, and tests LCS
+            result_name = lcs_test(payload_dict["name"], payload_dict["code"])
+        else:
+            print('Received', payload_dict["name"])
+            # Save the code to file and compile & execute
+            filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
+            result_name = compile_and_execute(filename)
+
+            # Cleanup created files
+            cleanup_files(filename, 'a.out')
+
         # Send the results back to the server
         send_results(HOST, 60000, payload_dict["name"], result_name)
         print('Sent', payload_dict["name"] + "Results")
-
-        # Cleanup created files
-        cleanup_files(result_name, filename, 'a.out')
+        
         time.sleep(10)
 
 if __name__ == "__main__":
