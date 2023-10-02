@@ -27,61 +27,6 @@ CORS(app)
 queuelist = []
 # statusdict = OrderedDict()
 
-@app.route('/submit/lcs', methods=['POST'])
-def submit_lcs_solution():
-    code = request.form['code'] + "LCS" 
-    
-    # Prepare the directory and status files similarly to /sendcode
-    file_dir = str(random.randint(0, 13458345324))
-    name = file_dir
-    outputfile = "test/" + file_dir + ".out"
-    file_dir = "test/" + file_dir + ".cpp"
-    
-    # Write the received code to a file
-    with open(file_dir, "w", newline="\n") as f:
-        f.write(code)
-        
-    statusfile = "status/" + name
-    st = open(statusfile, "w", newline="\n")
-    time.sleep(2)
-    print("LCS Code received!")
-    
-    # Assuming there's a function or a flag for security checks
-    if not security_check:
-        abort(409)
-    
-    # Compilation logic is the same as /sendcode
-    new_compile = subprocess.Popen(
-        ["g++", file_dir, "-o", outputfile],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
-    )
-    try:    
-        output, outerr = new_compile.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        new_compile.kill()
-        st.write('ERROR: timeout compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    if new_compile.returncode:
-        st.write('ERROR: at compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    
-    # Clean up and queue
-    subprocess.run(["/bin/rm", outputfile], timeout=15)
-    
-    # This is where we differentiate from the /sendcode
-    # Adding an LCS indication to the payload
-    queuelist.append([file_dir, name, "-O3", "LCS"])
-    st.write('IN QUEUE')
-    st.close()
-    
-    return str(name), 200
-
-  
-
 # Define routes and their respective functions
 
 @app.route('/hola', methods=['GET'])
@@ -141,6 +86,53 @@ def check():
         return 'Algunos medidores no responden!', 200
     else:
         return 'Todo OK!', 200
+
+@app.route('/submit/lcs', methods=['POST'])
+def submit_lcs_solution():
+    code = request.form['code']
+    
+    # Prepare the directory and status files similarly to /sendcode
+    file_dir = str(random.randint(0, 13458345324))+"LCS"
+    name = file_dir
+    outputfile = "test/" + file_dir + ".out"
+    file_dir = "test/" + file_dir + ".cpp"
+    
+    # Write the received code to a file
+    with open(file_dir, "w", newline="\n") as f:
+        f.write(code)
+        
+    statusfile = "status/" + name
+    st = open(statusfile, "w", newline="\n")
+    time.sleep(2)
+    print("LCS Code received!")
+    new_compile = subprocess.Popen(
+        ["g++", file_dir, "-o", outputfile],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
+    )
+    try:    
+        output, outerr = new_compile.communicate(timeout=15)
+    except subprocess.TimeoutExpired:
+        new_compile.kill()
+        st.write('ERROR: timeout compile\n')
+        st.write(outerr)
+        st.close()
+        return str(name), 200
+    if new_compile.returncode:
+        st.write('ERROR: at compile\n')
+        st.write(outerr)
+        st.close()
+        return str(name), 200
+    
+    # Clean up and queue
+    subprocess.run(["/bin/rm", outputfile], timeout=15)
+    
+    # This is where we differentiate from the /sendcode
+    # Adding an LCS indication to the payload
+    queuelist.append([file_dir, name, "-O3"])
+    st.write('IN QUEUE')
+    st.close()
+    
+    return str(name), 200
 
 # Route to receive and process code from clients
 @app.route('/sendcode', methods=['POST'])          # endpoint Recibir Codigo
@@ -248,6 +240,7 @@ def serve_next_inline():
     with open("status/" + next_inline[1], 'r') as r:
         asd = r.read()
         if asd == 'IN QUEUE':
+            print(next_inline)
             slave_serve(next_inline[0], next_inline[1], next_inline[2])
             with open("status/" + next_inline[1], 'r+') as r:
                 asd2 = r.read()

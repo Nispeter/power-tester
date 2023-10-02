@@ -44,3 +44,5 @@ int main() {
     //cout << "Longest Common Substring: " << longest_common_substring(first_half, second_half) << endl;
     return 0;
 }
+
+//LCS

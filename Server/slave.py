@@ -46,6 +46,16 @@ def compile_and_execute(name):
         return ""
     return aux.stdout.strip()
 
+def cae_lcs(name):
+    WINDOW_SIZE = 100
+    """Compile and execute the code."""
+    sub.run(["g++", name], universal_newlines=True)
+    try:
+        aux = sub.run(["bash", "measurescript3.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
+    except sub.TimeoutExpired:
+        return ""
+    return aux.stdout.strip()
+
 def send_results(host, port, name_request, result_name):
     """Send the results to the server."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
@@ -59,28 +69,6 @@ def cleanup_files(*files):
     """Remove specified files."""
     sub.run(["rm"] + list(files), timeout=15)
 
-def lcs_test(name, code):
-    # Save the user's code to a temporary file and compile it.
-    with open("temporary.cpp", "w", newline="\n") as f:
-        f.write(code)
-
-    # Compile the code.
-    compilation_result = subprocess.run(["g++", "temporary.cpp", "-o", "temporary.out"], capture_output=True)
-    if compilation_result.returncode != 0:
-        return f"Error in {name}: Compilation Error"
-
-    # Define test cases for LCS.
-    test_cases = [("abcd", "acdf"), ("xyz", "xyz"), ...]  # Add as many test cases as required.
-    
-    results = []
-    # Iterate over each test case.
-    for i, (str1, str2) in enumerate(test_cases):
-        result = subprocess.run(["./temporary.out"], input=str1 + "\n" + str2, text=True, capture_output=True)
-        results.append(result.stdout.strip())
-
-    # Return a joined string of results or however you wish to format it.
-    return "\n".join(results)
-
 def main():
     while True:
         # Connect to the server and receive payload
@@ -88,9 +76,14 @@ def main():
             payload_dict = receive_payload(s)
         
         if "LCS" in payload_dict["name"]:
-            # Handle LCS task specially
-            # Assuming you'll add an "lcs_test" function which compiles, runs, and tests LCS
-            result_name = lcs_test(payload_dict["name"], payload_dict["code"])
+            print('Received LCS', payload_dict["name"])
+            # Save the code to file and compile & execute
+            filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
+            result_name = cae_lcs(filename)
+
+            # Cleanup created files
+            cleanup_files(filename, 'a.out')
+
         else:
             print('Received', payload_dict["name"])
             # Save the code to file and compile & execute

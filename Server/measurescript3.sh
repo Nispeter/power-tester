@@ -29,7 +29,7 @@ do
     num_input=$((window_size * j))
     current_input=$(head -n $num_input $input_file)
     #echo "loop ${j}"
-    echo $input | perf stat -a -x';' -o ${outfile}.tmp -e \
+    echo $current_input | perf stat -a -x';' -o ${outfile}.tmp -e \
 		    	     power/energy-cores/,power/energy-pkg/,power/energy-ram/,instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles,duration_time ./${executable} >> ${outfile} #<- agregar soporte de argumentos
 	cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/,/./g' | sed 's/\s\+/,/g' >> ${outfile}
 done
