@@ -68,3 +68,10 @@ Interfaz hecha utilizando React.
 
 # Pruebas disponibles 
 
+# To-do 
+Multiplicacion de matrices
+cache oblivious
+Modificar el flujo de graficos para aceptar box plot
+slave.py: 
+    uncomment # get_box_graph_params(result_name)
+    change measurescript3 to 4

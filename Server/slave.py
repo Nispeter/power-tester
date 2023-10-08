@@ -2,6 +2,7 @@ import socket
 import json
 import subprocess as sub
 import time
+from slave_utils import *
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 50000        # The port used by the server
@@ -69,6 +70,8 @@ def cleanup_files(*files):
     """Remove specified files."""
     sub.run(["rm"] + list(files), timeout=15)
 
+    
+
 def main():
     while True:
         # Connect to the server and receive payload
@@ -80,7 +83,7 @@ def main():
             # Save the code to file and compile & execute
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
             result_name = cae_lcs(filename)
-
+            # get_box_graph_params(result_name)
             # Cleanup created files
             cleanup_files(filename, 'a.out')
 
@@ -101,3 +104,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
