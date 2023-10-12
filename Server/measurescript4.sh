@@ -12,7 +12,8 @@ cols=("Increment" "EnergyCores" "EnergyPkg" "EnergyRAM" "Instructions" "LLCLoads
 numcols=$(echo ${cols[@]})
 columns=$(echo ${numcols// /,})
 echo $columns >> ${outfile}
-SAMPLES=30
+INCREMENT=30
+SAMPLES=4
 
 # Warming up
 for((w=0; w<3; w++))
@@ -22,7 +23,7 @@ do
 done
 
 # For each increment
-for((i=1; i<=SAMPLES; i++))
+for((i=1; i<=INCREMENT; i++))
 do
     num_input=$((window_size * i))
     current_input=$(head -n $num_input $input_file)
@@ -36,7 +37,7 @@ do
         results=$(cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/,/./g' | sed 's/\s\+/,/g')
         
         # Add the increment number to the start of the results line
-        echo "$i;$results" >> ${outfile}
+        echo "$i,$results" >> ${outfile}
     done
 done
 

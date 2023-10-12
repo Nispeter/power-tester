@@ -7,7 +7,7 @@ def get_box_graph_params(file_name):
     # These are the base statistics columns for each measurement
     stats_columns = ["Minimum", "Q1", "Median", "Q3", "Maximum", "Mean", "Std"]
 
-    # Set up our results DataFrame with an initial column for the increment
+    # Set up our results DataFrame with an initial column for the incrementx
     results = pd.DataFrame(columns=["Increment"])
 
     # For each column in our input data (skipping the increment column)
@@ -32,3 +32,4 @@ def get_box_graph_params(file_name):
     # Save results to a new CSV
     results_filename = file_name
     results.to_csv(results_filename, index=False)
+
