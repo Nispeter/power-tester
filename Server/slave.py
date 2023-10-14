@@ -2,7 +2,7 @@ import socket
 import json
 import subprocess as sub
 import time
-from slave_utils import *
+#from slave_utils import *
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 50000        # The port used by the server
@@ -48,11 +48,11 @@ def compile_and_execute(name):
     return aux.stdout.strip()
 
 def cae_lcs(name):
-    WINDOW_SIZE = 100
+    WINDOW_SIZE = 200
     """Compile and execute the code."""
     sub.run(["g++", name], universal_newlines=True)
     try:
-        aux = sub.run(["bash", "measurescript3.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
+        aux = sub.run(["bash", "measurescript4.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
     except sub.TimeoutExpired:
         return ""
     return aux.stdout.strip()

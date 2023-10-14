@@ -84,41 +84,66 @@ def plot_common(columni, csvobj, ax, name):
     if ax.lines:
         plt.savefig("static/" + name + "/fig" + str(columni) + ".svg", format='svg')
 
-def plot_box(name, csvobj):
-    """Function to plot box graphs for the provided statistics CSV object."""
-    for column in csvobj.columns:
-        if column != "Increment":
-            fig, ax = plt.subplots()
-            
-            # Extract the relevant statistics for the current column
-            stats_data = csvobj[column].values
-            
-            # Plot a boxplot for the current column
-            ax.boxplot(stats_data)
-            ax.set_title(f"Box plot for {column}")
-            ax.set_ylabel(column)
-            ax.set_xticklabels([column])
-            
-            if ax.lines:
-                plt.savefig("static/" + name + "/fig" + str(columni) + ".svg", format='svg')
-            plt.close(fig)
+def plot_box(data, name):
+    data.replace('<not-counted>', np.nan, inplace=True)
+    
+    # Use non-interactive backend
+    plt.switch_backend('Agg')
+
+    # Convert to float type
+    for col in data.columns:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+
+    data_columns = [col for col in data.columns if col != 'Increment']
+
+    for columni, col in enumerate(data_columns, 1):
+        medians = []
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        # Extract the box data for each increment
+        box_data = [data[data['Increment'] == increment][col].dropna().values for increment in data['Increment'].unique()]
+        
+        # Create the box and whisker plot
+        boxes = ax.boxplot(box_data, whis=1.5, vert=True, patch_artist=True, medianprops=dict(color="black"))
+        
+        # Coloring the boxes
+        for patch in boxes['boxes']:
+            patch.set_facecolor('lightblue')
+        
+        # Median values
+        for median in boxes['medians']:
+            medians.append(median.get_ydata()[0])
+
+        # Line connecting medians
+        ax.plot(np.arange(1, len(data['Increment'].unique()) + 1), medians, color="red", label="Medians")
+        
+        # Grid
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+        
+        # Title and labels
+        ax.set_title(f"Box plot for {col}")
+        ax.set_xlabel('Increment')
+        ax.set_ylabel('Value')
+        
+        # Setting x ticks labels as Increment values
+        ax.set_xticks(np.arange(1, len(data['Increment'].unique()) + 1))
+        ax.set_xticklabels(data['Increment'].unique())
+
+        # Save the plot
+        plt.tight_layout()
+        plt.savefig(f"static/{name}/fig{columni}.svg", format='svg')
+        plt.close()  # close the figure to free up memory
 
 
 def plot_graphs(name, csvobj):
     nameresult = name + "Results" + str(0) + ".csv"
-    
-    # Check if the first column is "Increment"
-    has_increment = csvobj.columns[0] == "Increment"
 
     for columni in range(17):
         fig, ax = plt.subplots()
         df = csvobj
         test = csvobj.iloc[:, columni]
-        
-        if has_increment:
-            ax.set_title(f"Graph for Increment: {test[0]}")
-        else:
-            plot_common(columni, csvobj, ax, name)
+
+        plot_common(columni, csvobj, ax, name)
         plt.close(fig)
 
     subprocess.run(["/bin/mv", nameresult, "static/" + name])
@@ -127,7 +152,11 @@ def plot_graphs(name, csvobj):
 def graph_results(name):
     create_directory(name)
     csvobj = read_csv_data(name)
-    csvobj = calculate_normalized_power(csvobj)
-    save_normalized_data(name, csvobj)
-    plot_graphs(name, csvobj)
-
+    has_increment = csvobj.columns[0] == "Increment"
+    
+    if has_increment:
+        plot_box(csvobj, name)
+    else: 
+        csvobj = calculate_normalized_power(csvobj)
+        save_normalized_data(name, csvobj)
+        plot_graphs(name, csvobj)

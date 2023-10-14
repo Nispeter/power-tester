@@ -13,7 +13,7 @@ numcols=$(echo ${cols[@]})
 columns=$(echo ${numcols// /,})
 echo $columns >> ${outfile}
 INCREMENT=30
-SAMPLES=4
+SAMPLES=30
 
 # Warming up
 for((w=0; w<3; w++))
