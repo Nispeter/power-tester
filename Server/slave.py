@@ -57,6 +57,16 @@ def cae_lcs(name):
         return ""
     return aux.stdout.strip()
 
+def cae_camm(name):
+    # Insert any customizations specific to CAMM tasks if needed
+    WINDOW_SIZE = 200
+    sub.run(["g++", name], universal_newlines=True)
+    try:
+        aux = sub.run(["bash", "measurescript_camm.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
+    except sub.TimeoutExpired:
+        return ""
+    return aux.stdout.strip()
+
 def send_results(host, port, name_request, result_name):
     """Send the results to the server."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
@@ -85,6 +95,12 @@ def main():
             result_name = cae_lcs(filename)
             # get_box_graph_params(result_name)
             # Cleanup created files
+            cleanup_files(filename, 'a.out')
+            
+        elif "CAMM" in payload_dict["name"]:  # Handle CAMM submissions
+            print('Received CAMM', payload_dict["name"])
+            filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
+            result_name = cae_camm(filename)  # Call the CAMM function
             cleanup_files(filename, 'a.out')
 
         else:

@@ -7,11 +7,20 @@ import TaskPage from "./screens/TaskPage"
 
 class App extends Component {
   state = {
-    useLCSTest: false
+    tasksState: {
+      lcs: false,
+      camm: false
+      // ... Add more tasks as needed.
+    }
   }
 
-  handleLCSToggle = (value) => {
-    this.setState({ useLCSTest: value });
+  handleTaskToggle = (taskId, value) => {
+    this.setState(prevState => ({
+      tasksState: {
+        ...prevState.tasksState,
+        [taskId]: value
+      }
+    }));
   }
 
   componentDidMount() {
@@ -22,10 +31,10 @@ class App extends Component {
     return (
       <div>
         <BrowserRouter>
-        <Navbar useLCSTest={this.state.useLCSTest} />
+          <Navbar useLCSTest={this.state.tasksState.lcs} />
           <Routes>
-            <Route path="/taskpage" element={<TaskPage onLCSToggle={this.handleLCSToggle} useLCSTest={this.state.useLCSTest} />} />
-            <Route path="/" element={<RenderForm useLCSTest={this.state.useLCSTest} />} />
+            <Route path="/taskpage" element={<TaskPage onTaskToggle={this.handleTaskToggle} tasksState={this.state.tasksState} />} />
+            <Route path="/" element={<RenderForm tasksState={this.state.tasksState} />} />
             <Route path="/code/:codename" element={<RenderImage />} />
           </Routes>
         </BrowserRouter>

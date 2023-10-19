@@ -26,9 +26,17 @@ function RenderForm({ useLCSTest }) {
     if (code) {
       bodyFormData.append("code", code);
     }
+
+    let url = "http://127.0.0.1:5000/sendcode"; 
+    if (tasksState.lcs) {
+      url = "http://127.0.0.1:5000/submit/lcs";
+    } else if (tasksState.camm) {
+      url = "http://127.0.0.1:5000/submit/camm"; 
+    }
+
     axios({
       method: "post",
-      url: useLCSTest ? "http://127.0.0.1:5000/submit/lcs" : "http://127.0.0.1:5000/sendcode",
+      url: url,
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     })
