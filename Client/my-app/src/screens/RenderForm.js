@@ -4,7 +4,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RenderForm.css";
 
-function RenderForm({ useLCSTest }) {
+function RenderForm({ tasksState}) {
   const [code, setCode] = useState("");
   const [codename, setCodename] = useState();
   const [status, setStatus] = useState("Esperando entrada");

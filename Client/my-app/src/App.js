@@ -31,7 +31,7 @@ class App extends Component {
     return (
       <div>
         <BrowserRouter>
-          <Navbar useLCSTest={this.state.tasksState.lcs} />
+        <Navbar tasksState={this.state.tasksState} />
           <Routes>
             <Route path="/taskpage" element={<TaskPage onTaskToggle={this.handleTaskToggle} tasksState={this.state.tasksState} />} />
             <Route path="/" element={<RenderForm tasksState={this.state.tasksState} />} />

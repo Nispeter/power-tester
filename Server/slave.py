@@ -62,7 +62,7 @@ def cae_camm(name):
     WINDOW_SIZE = 200
     sub.run(["g++", name], universal_newlines=True)
     try:
-        aux = sub.run(["bash", "measurescript_camm.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
+        aux = sub.run(["bash", "measurescript4.sh", "a.out", "english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
     except sub.TimeoutExpired:
         return ""
     return aux.stdout.strip()
