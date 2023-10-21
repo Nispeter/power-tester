@@ -4,3 +4,4 @@ Server/webapp/static/*
 Server/webapp/status/*
 Server/webapp/template/*
 Server/webapp/test/*
+Server/matrix_input.txt

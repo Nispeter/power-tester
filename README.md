@@ -33,7 +33,7 @@ en app.py usar measurescript2.sh y en este ultimo agregar al comando perf :'duar
 ### Setup de perf
 
 Hay que cambiar los permisos de perf
-Al realizar     
+Al realizar     sudo nano /proc/sys/kernel/perf_event_paranoid
 cambiar el valor predefinido de 4 -> -1
 
 ### Correr Servidor 
