@@ -1,0 +1,19 @@
+# started on Thu Oct 26 19:54:23 2023
+
+212,34;Joules;power/energy-cores/;20666477464;100,00;;
+451,47;Joules;power/energy-pkg/;20666476294;100,00;;
+13,34;Joules;power/energy-ram/;20666475690;100,00;;
+195737628885;;instructions;63501218727;76,89;2;insn per cycle
+38662991;;LLC-loads;63510721125;76,90;;
+12904042;;LLC-load-misses;63518700402;76,91;33;of all LL-cache accesses
+19060958;;LLC-stores;12718724641;15,40;;
+9695087;;LLC-stores-misses;12712996193;15,39;;
+70121841865;;L1-dcache-loads;19066033894;23,09;;
+136601528;;L1-dcache-load-misses;25412429217;30,77;0;of all L1-dcache accesses
+39734633784;;L1-dcache-stores;31759176507;38,46;;
+177675620;;cache-misses;38105234494;46,14;33;of all cache refs
+527174478;;cache-references;44452883511;53,83;;
+22878018727;;branches;50800539010;61,51;;
+75658766;;branch-misses;50790829236;61,50;0;of all branches
+74796244718;;cpu-cycles;57138686592;69,19;;
+20650697907;ns;duration_time;20650697907;100,00;;

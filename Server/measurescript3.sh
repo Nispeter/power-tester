@@ -46,6 +46,7 @@ do
         results=$(cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/,/./g' | sed 's/\s\+/,/g')
         
         # Add the increment number to the start of the results line
+        # echo "INC$i,SAM$j"
         echo "$i,$results" >> ${outfile}
     done
     
