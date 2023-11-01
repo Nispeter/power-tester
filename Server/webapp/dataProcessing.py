@@ -9,6 +9,8 @@ import json
 import threading as th
 import time
 from statistics import mean
+import plotly.graph_objects as go
+import plotly.offline as pyo
 import sys
 import numpy as np
 
@@ -84,6 +86,55 @@ def plot_common(columni, csvobj, ax, name):
     if ax.lines:
         plt.savefig("static/" + name + "/fig" + str(columni) + ".svg", format='svg')
 
+def plot_common_plotly(columni, csvobj, ax, name):
+    df = csvobj.copy()
+    test = df.iloc[:, columni]
+
+    # Handle non-numeric data
+    test.replace('<not-counted>', np.nan, inplace=True)
+    test = pd.to_numeric(test, errors='coerce')
+
+    # Create the base figure
+    fig = go.Figure()
+
+    if columni < 3:
+        test2 = df.iloc[:, columni + 17]
+        
+        # Handle non-numeric data for test2
+        test2.replace('<not-counted>', np.nan, inplace=True)
+        test2 = pd.to_numeric(test2, errors='coerce')
+
+        # Bar trace
+        fig.add_trace(go.Bar(x=df.index, y=test, name=titulos[columni], marker_color='lightblue', yaxis='y1'))
+
+        # Line trace for the twin axes
+        fig.add_trace(go.Scatter(x=df.index, y=test2, mode='lines+markers', name='Potencia promedio', line=dict(color='red', dash='dash'), yaxis='y2'))
+
+        # Annotations for averages
+        fig.add_shape(type="line", y0=np.nanmean(test), y1=np.nanmean(test), x0=df.index[0], x1=df.index[-1], line=dict(color="orange"), yref='y1')
+        fig.add_shape(type="line", y0=np.nanmean(test2), y1=np.nanmean(test2), x0=df.index[0], x1=df.index[-1], line=dict(color="purple"), yref='y2')
+
+        # Configurations for twin axes
+        fig.update_layout(
+            yaxis=dict(title=unidadesdemedida[columni]),
+            yaxis2=dict(title='Watts', overlaying='y', side='right')
+        )
+
+    else:
+        fig.add_trace(go.Scatter(x=df.index, y=test, mode='lines+markers', name=titulos[columni], line=dict(color=color[0], dash='dash')))
+
+        # Annotation for average
+        fig.add_shape(type="line", y0=np.nanmean(test), y1=np.nanmean(test), x0=df.index[0], x1=df.index[-1], line=dict(color="orange"))
+
+    # Adjust layout
+    fig.update_layout(
+        title=titulos[columni],
+        xaxis_title='Iteraciones',
+        xaxis=dict(tickvals=list(range(0, 30, 5)))
+    )
+    fig.write_html(f"static/{name}/fig{columni}.html")
+
+
 def plot_box(data, name):
     data.replace('<not-counted>', np.nan, inplace=True)
     
@@ -143,7 +194,7 @@ def plot_graphs(name, csvobj):
         df = csvobj
         test = csvobj.iloc[:, columni]
 
-        plot_common(columni, csvobj, ax, name)
+        plot_common_plotly(columni, csvobj,ax,  name)
         plt.close(fig)
 
     subprocess.run(["/bin/mv", nameresult, "static/" + name])
