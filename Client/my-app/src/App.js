@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RenderForm from "./screens/RenderForm";
 import RenderImage from "./screens/RenderImage";
 import Navbar from "./common/Navbar";
-import TaskPage from "./screens/TaskPage"
+import TaskPage from "./screens/TaskPage";
+import RenderDoubleForm from "./screens/RenderDobuleForm";
 
 class App extends Component {
   state = {
@@ -35,6 +36,7 @@ class App extends Component {
           <Routes>
             <Route path="/taskpage" element={<TaskPage onTaskToggle={this.handleTaskToggle} tasksState={this.state.tasksState} />} />
             <Route path="/" element={<RenderForm tasksState={this.state.tasksState} />} />
+            <Route path="/compare" element={<RenderDoubleForm tasksState={this.state.tasksState} />} />
             <Route path="/code/:codename" element={<RenderImage />} />
           </Routes>
         </BrowserRouter>

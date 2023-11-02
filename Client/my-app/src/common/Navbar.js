@@ -17,6 +17,9 @@ function Navbar({ tasksState }) {
                       <li className="nav-item active">
                           <Link to="/" className="nav-link">Test</Link>
                       </li>
+                      <li className="nav-item active">
+                          <Link to="/compare" className="nav-link">Compare</Link>
+                      </li>
                       <li className="nav-item">
                       <Link to="/taskpage" className="nav-link">
             Task-info 

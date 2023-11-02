@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import getUrl from '../common/Constants.js'
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RenderForm.css";
 
@@ -27,12 +28,7 @@ function RenderForm({ tasksState}) {
       bodyFormData.append("code", code);
     }
 
-    let url = "http://127.0.0.1:5000/sendcode"; 
-    if (tasksState.lcs) {
-      url = "http://127.0.0.1:5000/submit/lcs";
-    } else if (tasksState.camm) {
-      url = "http://127.0.0.1:5000/submit/camm"; 
-    }
+    let url = getUrl(tasksState);
 
     axios({
       method: "post",

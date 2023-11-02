@@ -216,23 +216,6 @@ def cap_code():
         st.write(outerr)
         st.close()
         return str(name), 200
-    #outputfile = "./" + outputfile
-    #new_execute = subprocess.Popen(
-    #    [outputfile], stdin=subprocess.PIPE,
-    #    stdout=subprocess.PIPE, universal_newlines=True)
-    #try:
-    #    output, outerr = new_execute.communicate(timeout=15)
-    #except subprocess.TimeoutExpired:
-    #    new_execute.kill()
-    #    output, outerr = new_execute.communicate()
-    #    st.write('ERROR: timeout execute\n')
-    #    st.write(outerr)
-    #    st.close()
-    #    return str(name), 200
-    #if new_execute.returncode:
-    #    st.write('ERROR: execute returned non-zero\n')
-    #    return str(name), 200
-    #else:
     subprocess.run(["/bin/rm", outputfile], timeout=15)
     queuelist.append([file_dir, name, "-O3"])
     st.write('IN QUEUE')
