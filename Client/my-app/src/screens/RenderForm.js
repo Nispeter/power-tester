@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import getUrl from '../common/Constants.js'
+import getTask, { serverURL, baseURL, statusURL } from '../common/Constants.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RenderForm.css";
 
@@ -27,8 +27,12 @@ function RenderForm({ tasksState}) {
     if (code) {
       bodyFormData.append("code", code);
     }
-
-    let url = getUrl(tasksState);
+    console.log("A");
+    if (tasksState) {
+      bodyFormData.append("task_type", getTask(tasksState)); // Appending task_type from tasksState
+    }
+  
+    let url = baseURL;
 
     axios({
       method: "post",
@@ -66,7 +70,7 @@ function RenderForm({ tasksState}) {
 
   function getStatusfromServer(match) {
     axios
-      .get("http://127.0.0.1:5000/checkstatus/" + match)
+      .get(statusURL + match)
       .then((response) => {
         if (response.data === "IN QUEUE") setStatus("En cola");
         else if (response.data === "DONE") setStatus("Listo");

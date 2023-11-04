@@ -87,106 +87,20 @@ def check():
     else:
         return 'Todo OK!', 200
 
-@app.route('/submit/camm', methods=['POST'])
-def submit_camm_solution():
-    code = request.form['code']
-
-    # Prepare the directory and status files similarly to /sendcode
-    file_dir = str(random.randint(0, 13458345324))+"CAMM"
-    name = file_dir
-    outputfile = "test/" + file_dir + ".out"
-    file_dir = "test/" + file_dir + ".cpp"
-
-    # Write the received code to a file
-    with open(file_dir, "w", newline="\n") as f:
-        f.write(code)
-
-    statusfile = "status/" + name
-    st = open(statusfile, "w", newline="\n")
-    time.sleep(2)
-    print("CAMM Code received!")
-    new_compile = subprocess.Popen(
-        ["g++", file_dir, "-o", outputfile],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
-    )
-    try:
-        output, outerr = new_compile.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        new_compile.kill()
-        st.write('ERROR: timeout compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    if new_compile.returncode:
-        st.write('ERROR: at compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-
-    # Clean up and queue
-    subprocess.run(["/bin/rm", outputfile], timeout=15)
-    
-    # Adding a CAMM indication to the payload
-    queuelist.append([file_dir, name, "-O3"])
-    st.write('IN QUEUE')
-    st.close()
-
-    return str(name), 200
-
-
-
-@app.route('/submit/lcs', methods=['POST'])
-def submit_lcs_solution():
-    code = request.form['code']
-    
-    # Prepare the directory and status files similarly to /sendcode
-    file_dir = str(random.randint(0, 13458345324))+"LCS"
-    name = file_dir
-    outputfile = "test/" + file_dir + ".out"
-    file_dir = "test/" + file_dir + ".cpp"
-    
-    # Write the received code to a file
-    with open(file_dir, "w", newline="\n") as f:
-        f.write(code)
-        
-    statusfile = "status/" + name
-    st = open(statusfile, "w", newline="\n")
-    time.sleep(2)
-    print("LCS Code received!")
-    new_compile = subprocess.Popen(
-        ["g++", file_dir, "-o", outputfile],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True
-    )
-    try:    
-        output, outerr = new_compile.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        new_compile.kill()
-        st.write('ERROR: timeout compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    if new_compile.returncode:
-        st.write('ERROR: at compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    
-    # Clean up and queue
-    subprocess.run(["/bin/rm", outputfile], timeout=15)
-    
-    # This is where we differentiate from the /sendcode
-    # Adding an LCS indication to the payload
-    queuelist.append([file_dir, name, "-O3"])
-    st.write('IN QUEUE')
-    st.close()
-    
-    return str(name), 200
-
-# Route to receive and process code from clients
-@app.route('/sendcode', methods=['POST'])          # endpoint Recibir Codigo
+@app.route('/sendcode', methods=['POST'])         
 def cap_code():
     code = request.form['code']
-    file_dir = str(random.randint(0, 13458345324))
+    task_type = request.form.get('task_type', '')  # Get the task type from the form data
+
+    # Add a tag based on the task type
+    if task_type == "CAMM":
+        tag = "CAMM"
+    elif task_type == "LCS":
+        tag = "LCS"
+    else:
+        tag = ""  # Default tag
+
+    file_dir = str(random.randint(0, 13458345324)) + tag
     name = file_dir
     outputfile = "test/" + file_dir + ".out"
     file_dir = "test/" + file_dir + ".cpp"
@@ -195,11 +109,9 @@ def cap_code():
     statusfile = "status/" + name
     st = open(statusfile, "w", newline="\n")
     time.sleep(2)
-    print("Code received!")
+    print(f"{task_type} Code received!")
     if not security_check:
         abort(409)
-    # temppath = 'g++ ' + file_dir + ' -o ' + outputfile
-    # print(temppath)
     new_compile = subprocess.Popen(
        ["g++", file_dir, "-o", outputfile],
        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -220,7 +132,6 @@ def cap_code():
     queuelist.append([file_dir, name, "-O3"])
     st.write('IN QUEUE')
     st.close()
-    # print(statusdict, len(statusdict))
     return str(name), 200
 
 # Function to run the queue manager thread
