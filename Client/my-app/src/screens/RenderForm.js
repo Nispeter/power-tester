@@ -5,8 +5,10 @@ import getTask, { serverURL, baseURL, statusURL } from '../common/Constants.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RenderForm.css";
 
-function RenderForm({ tasksState}) {
-  const [code, setCode] = useState("");
+
+function RenderForm({ tasksState }) {
+  //const [code, setCode] = useState("");
+  const [file, setFile] = useState(null); 
   const [codename, setCodename] = useState();
   const [status, setStatus] = useState("Esperando entrada");
   const [check, setCheck] = useState(true);
@@ -18,74 +20,75 @@ function RenderForm({ tasksState}) {
   useEffect(() => {
     document.title = "Power Tester";
   }, []);
-  
+
+  function handleFileChange(event) {
+    const uploadedFile = event.target.files[0];
+    if (uploadedFile && uploadedFile.name.endsWith('.zip')) {
+      setFile(uploadedFile);
+    } else {
+      alert('Please upload a .zip file.');
+      event.target.value = ''; // Reset the file input
+    }
+  }
+
   function handleSubmit(event) {
-    alert("¡Enviado! Espere por el estado del código");
     event.preventDefault();
+    if (!file) {
+      alert('Please upload a .zip file.');
+      return;
+    }
+    console.log(file);
+    const bodyFormData = new FormData();
+    bodyFormData.append("file", file, file.name);
     setStatus("Esperando respuesta");
-    var bodyFormData = new FormData();
-    if (code) {
-      bodyFormData.append("code", code);
-    }
-    console.log("A");
+    console.log(bodyFormData);
     if (tasksState) {
-      bodyFormData.append("task_type", getTask(tasksState)); // Appending task_type from tasksState
+      bodyFormData.append("task_type", getTask(tasksState));
     }
-  
-    let url = baseURL;
 
     axios({
       method: "post",
-      url: url,
+      url: baseURL,
       data: bodyFormData,
       headers: { "Content-Type": "multipart/form-data" },
     })
       .then((response) => {
-        console.log(response.data, codename);
-        setCodename(response.data);
-        intervalID = setInterval(getStatusfromServer, 5000, response.data);
+        const queuedFiles = response.data.cpp_files_queued;
+        setCodename(queuedFiles[0]);
+        intervalID = setInterval(() => getStatusfromServer(queuedFiles), 5000);
       })
-      .catch((response) => {
-        console.log(response);
+      .catch((error) => {
+        console.error(error);
       });
   }
 
-  function handleChange(event) {
-    setCode(event.target.value);
-    setCheck(true);
-  }
-  function handleChange2(event) {
+  function handleChangeName(event) {
     setName(event.target.value);
   }
 
-  const fileInput = React.useRef(null);
-  function handleFileChange(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setCode(e.target.result);
-      reader.readAsText(file);
-    }
+  function getStatusfromServer(fileNames) {
+    console.log("file names: " + fileNames);
+    Promise.all(fileNames.map(fileName => 
+      axios.get(statusURL + fileName)
+        .then(response => ({ name: fileName, status: response.data }))
+        .catch(error => ({ name: fileName, status: 'ERROR', error }))
+    ))
+    .then(results => {
+      console.log("file status" + file.status);
+      const allDone = results.every(file => file.status === 'DONE');
+      if (allDone) {
+        clearInterval(intervalID);
+        setCheck(false);
+        // COMPLETAR
+      } else {
+        // COMPLETAR
+      }
+    });
   }
 
-  function getStatusfromServer(match) {
-    axios
-      .get(statusURL + match)
-      .then((response) => {
-        if (response.data === "IN QUEUE") setStatus("En cola");
-        else if (response.data === "DONE") setStatus("Listo");
-        else setStatus(response.data);
-        flag = response.data;
-      })
-      .catch((response) => {});
-    var tmp = flag.split(":");
-    console.log(tmp, flag);
-    if (flag === "DONE" || tmp[0] === "ERROR") {
-      clearInterval(intervalID);
-      if (flag === "DONE") setCheck(false);
-    }
+  function handleChange2(event) {
+    setName(event.target.value);
   }
-
   return (
     <React.Fragment>
       <form onSubmit={handleSubmit}>
@@ -102,10 +105,7 @@ function RenderForm({ tasksState}) {
                   <br />
                   <input type="text" value={name} onChange={handleChange2} />
                 </div>
-                <div>
-                  <label htmlFor="code">Inserte código </label>
-                </div>
-                <textarea
+                {/* <textarea
                   type="text"
                   id="code"
                   name="code"
@@ -113,12 +113,12 @@ function RenderForm({ tasksState}) {
                   cols="78"
                   value={code}
                   onChange={handleChange}
-                ></textarea>
-                <label for="formFileDisabled" class="form-label">
-                  Disabled file input example
-                </label>
-                <input ref={fileInput} class="form-control" type="file" id="formFile" onChange={handleFileChange}/>
-                <input type="submit" className="buttonv" value="Subir" />
+                ></textarea> */}
+                <label htmlFor="formFile" className="form-label">
+          Upload .zip file
+        </label>
+        <input className="form-control" type="file" id="formFile" onChange={handleFileChange}/>
+        <input type="submit" className="buttonv" value="Subir" />
               </div>
             </div>
           </div>

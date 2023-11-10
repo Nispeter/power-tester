@@ -8,6 +8,7 @@ import subprocess
 import random
 import socket
 import json
+import zipfile
 import threading as th
 import time
 from statistics import mean
@@ -15,6 +16,7 @@ import sys
 import numpy as np
 from dataProcessing import *
 from socketUtils import *
+import os
 #import os
 
 # Initialize the Flask app
@@ -26,15 +28,12 @@ CORS(app)
 # Create an empty list to store measurement queue items
 queuelist = []
 # statusdict = OrderedDict()
-
 # Define routes and their respective functions
 
 @app.route('/hola', methods=['GET'])
 def hola():
     t = subprocess.run(['ls', 'status'], capture_output=True, universal_newlines=True)
     return str(t.stdout)
-
-    
 
 @app.route('/<code>/mean')
 def jsonifyMean(code):
@@ -86,65 +85,67 @@ def check():
         return 'Algunos medidores no responden!', 200
     else:
         return 'Todo OK!', 200
-
-@app.route('/sendcode', methods=['POST'])         
+    
+@app.route('/sendcode', methods=['POST'])
 def cap_code():
-    code = request.form['code']
-    task_type = request.form.get('task_type', '')  # Get the task type from the form data
+    # Check if the file part is present in the request
+    if 'file' not in request.files:
+        print("bad request, no file")
+        return 'No file part', 400
 
-    # Add a tag based on the task type
-    if task_type == "CAMM":
-        tag = "CAMM"
-    elif task_type == "LCS":
-        tag = "LCS"
-    else:
-        tag = ""  # Default tag
+    # Retrieve the file from the request
+    file = request.files['file']
 
-    file_dir = str(random.randint(0, 13458345324)) + tag
-    name = file_dir
-    outputfile = "test/" + file_dir + ".out"
-    file_dir = "test/" + file_dir + ".cpp"
-    with open(file_dir, "w", newline="\n") as f:
-        f.write(code)
-    statusfile = "status/" + name
-    st = open(statusfile, "w", newline="\n")
-    time.sleep(2)
-    print(f"{task_type} Code received!")
-    if not security_check:
-        abort(409)
-    new_compile = subprocess.Popen(
-       ["g++", file_dir, "-o", outputfile],
-       stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    try:
-        output, outerr = new_compile.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        new_compile.kill()
-        st.write('ERROR: timeout compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    if new_compile.returncode:
-        st.write('ERROR: at compile\n')
-        st.write(outerr)
-        st.close()
-        return str(name), 200
-    subprocess.run(["/bin/rm", outputfile], timeout=15)
-    queuelist.append([file_dir, name, "-O3"])
-    st.write('IN QUEUE')
-    st.close()
-    return str(name), 200
+    # Retrieve task_type if provided in the request
+    task_type = request.form.get('task_type', '')
 
-# Function to run the queue manager thread
-@app.before_first_request
-def spawner():
-    th.Thread(target=queue_manager, daemon=True).start()
+    # Validate file and task type
+    if file.filename == '':
+        return 'No selected file', 400
+    if not file.filename.endswith('.zip'):
+        return 'Invalid file type', 400
+    print("Zip package received! ")
+    # Save the zip file temporarily
+    temp_zip_path = "temp_upload.zip"
+    file.save(temp_zip_path)
 
-# Queue manager function to handle the execution queue
+    # Process the zip file
+    with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+        for file_info in zip_ref.infolist():
+            if file_info.filename.endswith('.cpp'):
+                # Generate a unique identifier for each .cpp file
+                unique_id = str(random.randint(0, 13458345324))
+                print(f"Code {unique_id} found, with task {task_type}")
+                if task_type == "CAMM":
+                    tag = "CAMM"
+                elif task_type == "LCS":
+                    tag = "LCS"
+                else:
+                    tag = ""  # Default tag
 
-# Check if the queue is empty
-def is_queue_empty():
-    """Return True if the queue list is empty, otherwise return False."""
-    return not queuelist
+                # Construct the file path
+                name = unique_id + tag
+                cpp_file_dir = "test/" + name + ".cpp"
+                outputfile = "test/" + name + ".out"
+                statusfile = "status/" + name
+
+                # Extract the .cpp file and write its content to the file system
+                with open(cpp_file_dir, "w", newline="\n") as f:
+                    f.writelines([line.decode('utf-8') for line in zip_ref.open(file_info)])
+                
+                # Write to status file
+                with open(statusfile, "w", newline="\n") as st:
+                    st.write('IN QUEUE')
+
+                # Add to queue
+                queuelist.append([cpp_file_dir, name, "-O3", task_type])
+
+    # Remove the temporary zip file
+    os.remove(temp_zip_path)
+
+    # Respond with the names of the .cpp files added to the queue and their task type
+    queued_cpp_names = [item[1] for item in queuelist if item[-1] == task_type]
+    return jsonify({'cpp_files_queued': queued_cpp_names, 'task_type': task_type}), 200
 
 # Get the number of files in the 'status' directory
 def get_status_file_count():
@@ -174,6 +175,14 @@ def remove_associated_static_file(file_path):
     """Remove the associated static file for a given status file."""
     temp2 = file_path.split('/')
     subprocess.run(["/bin/rm", "static/" + temp2[1], "-rf"], timeout=15)
+
+@app.before_first_request
+def spawner():
+    th.Thread(target=queue_manager, daemon=True).start()
+    
+def is_queue_empty():
+    """Return True if the queue list is empty, otherwise return False."""
+    return not queuelist
 
 # Process and serve the next inline item from the queue
 def serve_next_inline():
@@ -214,4 +223,6 @@ def queue_manager():
 
 # Start the Flask app if the script is run as the main program
 if __name__ == '__main__':
+    # queue_manager_thread = th(target=queue_manager)
+    # queue_manager_thread.start()
     app.run(host='0.0.0.0')

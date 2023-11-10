@@ -6,3 +6,4 @@ Server/webapp/template/*
 Server/webapp/test/*
 Server/input
 Server/utils/static
+startup.sh
