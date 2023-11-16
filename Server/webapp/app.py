@@ -1,5 +1,3 @@
-# , make_response , send_file
-# Import necessary modules and libraries
 from flask import Flask, request, render_template, abort, url_for, redirect, make_response, jsonify
 from flask_cors import CORS
 import matplotlib.pyplot as plt
@@ -111,6 +109,8 @@ def cap_code():
 
     # Process the zip file
     with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
+        cpp_dirs_onZip = []
+        names_onZip = []
         for file_info in zip_ref.infolist():
             if file_info.filename.endswith('.cpp'):
                 # Generate a unique identifier for each .cpp file
@@ -136,9 +136,10 @@ def cap_code():
                 # Write to status file
                 with open(statusfile, "w", newline="\n") as st:
                     st.write('IN QUEUE')
-
+                cpp_dirs_onZip.append(cpp_file_dir)
+                names_onZip.append(name)
                 # Add to queue
-                queuelist.append([cpp_file_dir, name, "-O3", task_type])
+        queuelist.append([cpp_dirs_onZip, names_onZip, "-O3", task_type])
 
     # Remove the temporary zip file
     os.remove(temp_zip_path)
@@ -146,6 +147,34 @@ def cap_code():
     # Respond with the names of the .cpp files added to the queue and their task type
     queued_cpp_names = [item[1] for item in queuelist if item[-1] == task_type]
     return jsonify({'cpp_files_queued': queued_cpp_names, 'task_type': task_type}), 200
+
+# Process and serve the next inline item from the queue
+def serve_next_inline():
+    """Process and serve the next inline item from the queue."""
+    next_inline = queuelist.pop()
+    print("next_inline: ", next_inline)
+    for file_num in range(len(next_inline[1])):
+        with open("status/" + next_inline[1][file_num], 'r') as r:
+            asd = r.read()
+            if asd == 'IN QUEUE':
+                print(next_inline)
+                slave_serve(next_inline[0][file_num], next_inline[1][file_num], next_inline[2])
+    for file_num in range(len(next_inline[1])): 
+        error_count = 0          
+        with open("status/" + next_inline[1][file_num], 'r+') as r:
+            asd2 = r.read()
+            if asd2 != 'ERROR: no machines available':
+                print("prev-graph_results")
+                print(next_inline, 'served!')
+                r.seek(0)
+                r.write('DONE')
+                r.truncate()
+            else:
+                error_count+=1
+                print(next_inline, 'failed: No machines available!')
+    if error_count == 0:
+        graph_results(next_inline[1])
+    
 
 # Get the number of files in the 'status' directory
 def get_status_file_count():
@@ -184,31 +213,11 @@ def is_queue_empty():
     """Return True if the queue list is empty, otherwise return False."""
     return not queuelist
 
-# Process and serve the next inline item from the queue
-def serve_next_inline():
-    """Process and serve the next inline item from the queue."""
-    next_inline = queuelist.pop()
-    with open("status/" + next_inline[1], 'r') as r:
-        asd = r.read()
-        if asd == 'IN QUEUE':
-            print(next_inline)
-            slave_serve(next_inline[0], next_inline[1], next_inline[2])
-            with open("status/" + next_inline[1], 'r+') as r:
-                asd2 = r.read()
-                if asd2 != 'ERROR: no machines available':
-                    print("prev-graph_results")
-                    graph_results(next_inline[1])
-                    print(next_inline, 'served!')
-                    r.seek(0)
-                    r.write('DONE')
-                    r.truncate()
-                else:
-                    print(next_inline, 'failed: No machines available!')
-
 # The main queue manager function
 def queue_manager():
     """Main function to manage the queue. Runs indefinitely."""
     while True:
+        # An error may occur whenever mutiple files are uploaded and the first condition happens
         if is_queue_empty():
             print('Waiting...')
             if get_status_file_count() >= 50:

@@ -14,7 +14,7 @@ import numpy as np
 
 # Initialize variables to keep track of active measurement machines
 activeS = 0  # medidores activos (medidores que han respondido al servidor)
-activeR = 0
+
 
 # Function to manage sending data to measurement machines
 def send_manager(s, json_string, name):

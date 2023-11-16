@@ -81,3 +81,42 @@ def plot_box(data, name):
         plt.tight_layout()
         plt.savefig(f"static/{name}/fig{columni}.svg", format='svg')
         plt.close()  # close the figure to free up memory
+
+
+def plot_box_plotly(data, name):
+    # Replace non-numeric entries
+    data.replace('<not-counted>', np.nan, inplace=True)
+
+    # Convert columns to float type
+    for col in data.columns:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+
+    data_columns = [col for col in data.columns if col != 'Increment']
+
+    # Sort the data by 'Increment' to ensure the order on the x-axis
+    data.sort_values(by='Increment', inplace=True)
+
+    for columni, col in enumerate(data_columns, 1):
+        # Create a new figure
+        fig = go.Figure()
+
+        # Extract the box data for each increment
+        box_data = [data[data['Increment'] == increment][col].dropna().values for increment in data['Increment'].unique()]
+
+        # Create the box traces
+        for i, increment in enumerate(data['Increment'].unique(), 1):
+            fig.add_trace(go.Box(y=box_data[i-1], name=str(increment), marker_color='lightblue', line_color='black'))
+
+        # Median trace
+        medians = [np.median(b_data) for b_data in box_data if len(b_data) > 0]
+        fig.add_trace(go.Scatter(x=list(data['Increment'].unique()), y=medians, mode='lines', name='Medians', line=dict(color='red')))
+
+        # Adjust layout
+        fig.update_layout(
+            title=f"Box plot for {col}",
+            xaxis_title='Increment',
+            yaxis_title='Value',
+        )
+
+        # Save the plot as HTML
+        fig.write_html(f"static/{name}/fig{columni}.html")  

@@ -22,9 +22,10 @@ titulos = ['Energía de Nucleos', 'Energía de Paquete', 'Energía de RAM', 'Ins
 
 
 # Function to plot and save graphs from measurement results
-def create_directory(name):
-    print("Creating directory for " + name + "!")
-    subprocess.run(["/bin/mkdir", "static/" + name], universal_newlines=True)
+def create_directory(names):
+    for name in names:
+        print("Creating directory for " + name + "!")
+        subprocess.run(["/bin/mkdir", "static/" + name], universal_newlines=True)
 
 def read_csv_data(name):
     nameresult = name + "Results" + str(0) + ".csv"
@@ -53,53 +54,51 @@ def save_normalized_data(name, csvobj):
         csvobj.to_csv(w, index=False)
 
 
-def plot_common_plotly(columni, csvobj, ax, name):
-    df = csvobj.copy()
-    test = df.iloc[:, columni]
-
-    # Handle non-numeric data
-    test.replace('<not-counted>', np.nan, inplace=True)
-    test = pd.to_numeric(test, errors='coerce')
-
+def plot_common_plotly(columni, csvobjs, ax, names):
     # Create the base figure
     fig = go.Figure()
 
+    for name, csvobj in zip(names, csvobjs):
+        df = csvobj.copy()
+        test = df.iloc[:, columni]
+
+        # Handle non-numeric data
+        test.replace('<not-counted>', np.nan, inplace=True)
+        test = pd.to_numeric(test, errors='coerce')
+
+        if columni < 3:
+            test2 = df.iloc[:, columni + 17]
+            
+            # Handle non-numeric data for test2
+            test2.replace('<not-counted>', np.nan, inplace=True)
+            test2 = pd.to_numeric(test2, errors='coerce')
+
+            # Bar trace
+            fig.add_trace(go.Bar(x=df.index, y=test, name=f'{titulos[columni]} - {name}', marker_color='lightblue', yaxis='y1'))
+
+            # Line trace for the twin axes
+            fig.add_trace(go.Scatter(x=df.index, y=test2, mode='lines+markers', name=f'Potencia promedio - {name}', line=dict(color='red', dash='dash'), yaxis='y2'))
+
+        else:
+            fig.add_trace(go.Scatter(x=df.index, y=test, mode='lines+markers', name=f'{titulos[columni]} - {name}', line=dict(color=color[0], dash='dash')))
+
+    # Configurations for twin axes, if applicable
     if columni < 3:
-        test2 = df.iloc[:, columni + 17]
-        
-        # Handle non-numeric data for test2
-        test2.replace('<not-counted>', np.nan, inplace=True)
-        test2 = pd.to_numeric(test2, errors='coerce')
-
-        # Bar trace
-        fig.add_trace(go.Bar(x=df.index, y=test, name=titulos[columni], marker_color='lightblue', yaxis='y1'))
-
-        # Line trace for the twin axes
-        fig.add_trace(go.Scatter(x=df.index, y=test2, mode='lines+markers', name='Potencia promedio', line=dict(color='red', dash='dash'), yaxis='y2'))
-
-        # Annotations for averages
-        fig.add_shape(type="line", y0=np.nanmean(test), y1=np.nanmean(test), x0=df.index[0], x1=df.index[-1], line=dict(color="orange"), yref='y1')
-        fig.add_shape(type="line", y0=np.nanmean(test2), y1=np.nanmean(test2), x0=df.index[0], x1=df.index[-1], line=dict(color="purple"), yref='y2')
-
-        # Configurations for twin axes
         fig.update_layout(
             yaxis=dict(title=unidadesdemedida[columni]),
             yaxis2=dict(title='Watts', overlaying='y', side='right')
         )
 
-    else:
-        fig.add_trace(go.Scatter(x=df.index, y=test, mode='lines+markers', name=titulos[columni], line=dict(color=color[0], dash='dash')))
-
-        # Annotation for average
-        fig.add_shape(type="line", y0=np.nanmean(test), y1=np.nanmean(test), x0=df.index[0], x1=df.index[-1], line=dict(color="orange"))
-
-    # Adjust layout
+    # Adjust layout for all cases
     fig.update_layout(
         title=titulos[columni],
         xaxis_title='Iteraciones',
         xaxis=dict(tickvals=list(range(0, 30, 5)))
     )
-    fig.write_html(f"static/{name}/fig{columni}.html")
+
+    # Save the figure as an HTML file
+    fig.write_html(f"static/fig{columni}.html")
+
 
 def plot_box_plotly(data, name):
     # Replace non-numeric entries
@@ -110,6 +109,9 @@ def plot_box_plotly(data, name):
         data[col] = pd.to_numeric(data[col], errors='coerce')
 
     data_columns = [col for col in data.columns if col != 'Increment']
+
+    # Sort the data by 'Increment' to ensure the order on the x-axis
+    data.sort_values(by='Increment', inplace=True)
 
     for columni, col in enumerate(data_columns, 1):
         # Create a new figure
@@ -134,33 +136,38 @@ def plot_box_plotly(data, name):
         )
 
         # Save the plot as HTML
-        fig.write_html(f"static/{name}/fig{columni}.html")
+        fig.write_html(f"static/{name}/fig{columni}.html")  
 
 
 
-
-def plot_graphs(name, csvobj):
-    nameresult = name + "Results" + str(0) + ".csv"
+def plot_graphs(names, csvobj):
+    nameresult = names[0] + "Results" + str(0) + ".csv"
 
     for columni in range(17):
         fig, ax = plt.subplots()
-        df = csvobj
-        test = csvobj.iloc[:, columni]
+        # df = csvobj
+        # test = csvobj.iloc[:, columni]
 
-        plot_common_plotly(columni, csvobj,ax,  name)
+        plot_common_plotly(columni, csvobj,ax,  names)
         plt.close(fig)
 
-    subprocess.run(["/bin/mv", nameresult, "static/" + name])
+    subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
     print("Done!")
 
-def graph_results(name):
-    create_directory(name)
-    csvobj = read_csv_data(name)
+def graph_results(names):
+    create_directory(names[0])
+    all_csvobjs = []
+    csvobj = read_csv_data(names[0])
     has_increment = csvobj.columns[0] == "Increment"
     
     if has_increment:
-        plot_box_plotly(csvobj, name)
+        for name in names:
+            all_csvobjs.append(read_csv_data(name))
+        plot_box_plotly(all_csvobjs, names)
     else: 
-        csvobj = calculate_normalized_power(csvobj)
-        save_normalized_data(name, csvobj)
-        plot_graphs(name, csvobj)
+        for name in names:
+            csvobj = read_csv_data(name)
+            csvobj = calculate_normalized_power(csvobj)
+            save_normalized_data(name, csvobj)
+            all_csvobjs.append(read_csv_data(name))
+        plot_graphs(name, all_csvobjs)
