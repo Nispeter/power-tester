@@ -65,7 +65,6 @@ def home():
 
 # Route to check the status of a code execution
 @app.route('/checkstatus/<code>', methods=['GET'])
-# crear ruta para ver status de codigo
 def tmr(code):
     try:
         temp = open("status/"+code, 'r+', newline='\n')

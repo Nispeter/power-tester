@@ -97,7 +97,8 @@ def plot_common_plotly(columni, csvobjs, ax, names):
     )
 
     # Save the figure as an HTML file
-    fig.write_html(f"static/fig{columni}.html")
+    fig.write_html(f"static/{name}/fig{columni}.html")
+
 
 
 def plot_box_plotly(data, name):
@@ -140,25 +141,24 @@ def plot_box_plotly(data, name):
 
 
 
-def plot_graphs(names, csvobj):
-    nameresult = names[0] + "Results" + str(0) + ".csv"
+def plot_graphs(names, csvobjs):
+        nameresult = names[0] + "Results" + str(0) + ".csv"
+        for columni in range(17):
+            fig, ax = plt.subplots()
+            # df = csvobj
+            # test = csvobj.iloc[:, columni]
+            
+            plot_common_plotly(columni, csvobjs,ax,  names)
+            plt.close(fig)
 
-    for columni in range(17):
-        fig, ax = plt.subplots()
-        # df = csvobj
-        # test = csvobj.iloc[:, columni]
-
-        plot_common_plotly(columni, csvobj,ax,  names)
-        plt.close(fig)
-
-    subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
-    print("Done!")
+        subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
+        print("Done!")
 
 def graph_results(names):
-    create_directory(names[0])
+    create_directory(names)
     all_csvobjs = []
-    csvobj = read_csv_data(names[0])
-    has_increment = csvobj.columns[0] == "Increment"
+    csvobj = read_csv_data(names[0])                    #Identify the task 
+    has_increment = csvobj.columns[0] == "Increment"    #Identify the task 
     
     if has_increment:
         for name in names:
@@ -169,5 +169,6 @@ def graph_results(names):
             csvobj = read_csv_data(name)
             csvobj = calculate_normalized_power(csvobj)
             save_normalized_data(name, csvobj)
-            all_csvobjs.append(read_csv_data(name))
-        plot_graphs(name, all_csvobjs)
+            all_csvobjs.append(pd.read_csv("static/"+name+"/"+name+"ResultsFinal.csv",))
+        print(all_csvobjs)
+        plot_graphs(names, all_csvobjs)

@@ -54,8 +54,13 @@ function RenderForm({ tasksState }) {
     })
       .then((response) => {
         const queuedFiles = response.data.cpp_files_queued;
-        setCodename(queuedFiles[0]);
-        intervalID = setInterval(() => getStatusfromServer(queuedFiles), 5000);
+        if (queuedFiles.length > 0 && queuedFiles[0].length > 0) {
+          const lastIndex = queuedFiles[0].length - 1;
+          setCodename(queuedFiles[0][lastIndex]);
+      } else {
+          console.log('No files found');
+      }
+        intervalID = setInterval(() => getStatusfromServer(queuedFiles[0]), 5000);
       })
       .catch((error) => {
         console.error(error);
@@ -67,25 +72,28 @@ function RenderForm({ tasksState }) {
   }
 
   function getStatusfromServer(fileNames) {
-    console.log("file names: " + fileNames);
+    console.log("File names: ", fileNames);
+  
+    // No need to split if fileNames is already an array
     Promise.all(fileNames.map(fileName => 
       axios.get(statusURL + fileName)
         .then(response => ({ name: fileName, status: response.data }))
         .catch(error => ({ name: fileName, status: 'ERROR', error }))
     ))
     .then(results => {
-      console.log("file status" + file.status);
+      results.forEach(file => console.log(file.name + " status: " + file.status));
       const allDone = results.every(file => file.status === 'DONE');
+  
       if (allDone) {
         clearInterval(intervalID);
         setCheck(false);
-        // COMPLETAR
+        //COMPLETAR
       } else {
-        // COMPLETAR
+        //COMPLETAR
       }
     });
   }
-
+  
   function handleChange2(event) {
     setName(event.target.value);
   }
