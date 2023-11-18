@@ -6,33 +6,13 @@ function TaskPage({ onTaskToggle }) {
     const tasks = [
         {
             id: 'lcs',
-            title: 'Longest common substring (LCS)',
-            description: `
-    La tarea LCS se centra en encontrar la subsecuencia común más larga que existe entre dos secuencias. Una subsecuencia es una secuencia que aparece en el mismo orden relativo, pero no necesariamente de forma consecutiva, en ambas secuencias. 
-    
-    Este problema es un desafío clásico de la informática a menudo encontrado en los dominios de la programación dinámica. Por ejemplo, considera dos secuencias: "ABCDGH" y "AEDFHR". La LCS es "ADH".
-    
-    Esta tarea te requerirá:
-    1. Entender los conceptos básicos de la programación dinámica.
-    2. Formular un enfoque recursivo para representar los subproblemas.
-    3. Optimizar el enfoque recursivo utilizando memoización o cálculo de abajo hacia arriba para lograr una solución más eficiente.
-    
-    Las aplicaciones del problema LCS incluyen, pero no se limitan a, utilidades de diferenciación (utilizadas para mostrar diferencias entre archivos), análisis de secuencias de ADN y sistemas de control de versiones.
-            `
+            title: 'Text input',
+            description: ``
         },
         {
             id: 'camm',
-            title: 'Cache Oblivious Matrix multiplication (COMM)',
-            description: `
-    La tarea profundiza en el proceso de multiplicación de matrices optimizado para jerarquías de memoria teniendo en cuenta los parámetros específicos de la memoria caché. Los algoritmos conscientes del caché están diseñados para maximizar el uso del caché y minimizar las fallas del caché, lo que mejora el rendimiento general del algoritmo.
-    
-    Esta tarea te desafiará a:
-    1. Captar los fundamentos de las estrategias conscientes del caché y cómo aprovechan las características del caché para mejorar el rendimiento.
-    2. Implementar la multiplicación de matrices que logre un rendimiento óptimo al ajustarla para tamaños de caché específicos.
-    3. Analizar y comprender el impacto de los patrones de acceso a la memoria y cómo un enfoque consciente del caché busca maximizar el uso eficiente del caché.
-    
-    La multiplicación de matrices consciente del caché tiene aplicaciones en computación de alto rendimiento, simulaciones científicas y en escenarios donde el rendimiento es crucial.
-            `
+            title: 'Numerical input',
+            description: ``
         }
     ];
     

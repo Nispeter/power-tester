@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import getTask, { serverURL, baseURL, statusURL, tasks} from '../common/Constants.js';
+import getTask, { serverURL, baseURL, statusURL } from '../common/Constants.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./RenderForm.css";
 
 
-function RenderForm() {
+function RenderForm({ tasksState }) {
   //const [code, setCode] = useState("");
   const [file, setFile] = useState(null); 
   const [codename, setCodename] = useState();
@@ -17,18 +17,9 @@ function RenderForm() {
   var intervalID = 0;
   let navigate = useNavigate();
 
-  const [selectedTaskType, setselectedTaskType] = useState(null);
-
-    const handleRadioChange = (taskId) => {
-      console.log("taskid", taskId);
-      setselectedTaskType(taskId);
-      console.log("selcted type", selectedTaskType);
-  }
-  
   useEffect(() => {
     document.title = "Power Tester";
-    console.log('Selected Task Type:', selectedTaskType);
-}, [selectedTaskType]);
+  }, []);
 
   function handleFileChange(event) {
     const uploadedFile = event.target.files[0];
@@ -51,9 +42,8 @@ function RenderForm() {
     bodyFormData.append("file", file, file.name);
     setStatus("Esperando respuesta");
     console.log(bodyFormData);
-    if (selectedTaskType) {
-      bodyFormData.append("task_type", getTask(selectedTaskType));
-      console.log(bodyFormData)
+    if (tasksState) {
+      bodyFormData.append("task_type", getTask(tasksState));
     }
 
     axios({
@@ -136,32 +126,7 @@ function RenderForm() {
           Upload .zip file
         </label>
         <input className="form-control" type="file" id="formFile" onChange={handleFileChange}/>
-        <div className="container mt-4 scrollable-area">
-            {tasks.map(task => (
-                <div className="card mb-3" key={task.id}>
-                    <div className="card-body">
-                        <div className="form-check">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="taskToggle"
-                                id={task.id}
-                                onChange={(e) => handleRadioChange(task.id)}
-                            />
-                            <label className="form-check-label" htmlFor={task.id}>
-                                {task.title} {selectedTaskType !== task.id && '(Expand for description)'}
-                            </label>
-                        </div>
-                        {selectedTaskType === task.id && (
-                            <div className="mt-2">
-                                <p>{task.description}</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            ))}
-        </div>
-        <input type="submit" className="buttonv" disabled={!selectedTaskType}  value="Subir" />
+        <input type="submit" className="buttonv" value="Subir" />
               </div>
             </div>
           </div>

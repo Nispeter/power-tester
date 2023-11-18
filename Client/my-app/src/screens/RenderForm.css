@@ -37,5 +37,12 @@ textarea#code, textarea#status {
   resize: vertical; /* allows only vertical resizing, optional */
 }
 
+.scrollable-area {
+  max-height: 270px; /* Adjust this value as needed */
+  overflow-y: auto;    /* Enables vertical scrolling if content overflows */
+}
+
+
+
   
   

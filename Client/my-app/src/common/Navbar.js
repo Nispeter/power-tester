@@ -17,7 +17,7 @@ function Navbar({ tasksState }) {
                       <li className="nav-item active">
                           <Link to="/" className="nav-link">Test</Link>
                       </li>
-                      <li className="nav-item active">
+                      {/* <li className="nav-item active">
                           <Link to="/compare" className="nav-link">Compare</Link>
                       </li>
                       <li className="nav-item">
@@ -25,7 +25,7 @@ function Navbar({ tasksState }) {
             Task-info 
             {isAnyTaskActive && <span className="white-dot"></span>}
           </Link>
-                      </li>
+                      </li> */}
                       <li className="nav-item">
                           <a className="nav-link" href="#">
                             About

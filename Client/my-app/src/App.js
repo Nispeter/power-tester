@@ -35,7 +35,8 @@ class App extends Component {
         <Navbar tasksState={this.state.tasksState} />
           <Routes>
             <Route path="/taskpage" element={<TaskPage onTaskToggle={this.handleTaskToggle} tasksState={this.state.tasksState} />} />
-            <Route path="/" element={<RenderForm tasksState={this.state.tasksState} />} />
+            {/* <Route path="/" element={<RenderForm tasksState={this.state.tasksState} />} /> */}
+            <Route path="/" element={<RenderForm/>} />
             <Route path="/compare" element={<RenderDoubleForm tasksState={this.state.tasksState} />} />
             <Route path="/code/:codename" element={<RenderImage />} />
           </Routes>

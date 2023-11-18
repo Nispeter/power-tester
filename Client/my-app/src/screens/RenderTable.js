@@ -98,7 +98,7 @@ class RenderTable extends Component {
               </tr>
             </tbody>
           </table>
-          <p style={{"text-align": "center"}}> *La línea naranja (y púrpura) en los gráficos representan los promedios.</p>
+         
         </div>
       </React.Fragment>
     )

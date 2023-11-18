@@ -101,43 +101,38 @@ def plot_common_plotly(columni, csvobjs, ax, names):
 
 
 
-def plot_box_plotly(data, name):
-    # Replace non-numeric entries
-    data.replace('<not-counted>', np.nan, inplace=True)
+def plot_box_plotly(csvobjs, names):
+    # Assuming all CSV objects have the same column structure
+    if csvobjs:
+        data_columns = [col for col in csvobjs[0].columns if col != 'Increment']
 
-    # Convert columns to float type
-    for col in data.columns:
-        data[col] = pd.to_numeric(data[col], errors='coerce')
+        for columni, col in enumerate(data_columns, 1):
+            # Create a new figure for each column
+            fig = go.Figure()
 
-    data_columns = [col for col in data.columns if col != 'Increment']
+            for data, name in zip(csvobjs, names):
+                # Replace non-numeric entries
+                data.replace('<not-counted>', np.nan, inplace=True)
 
-    # Sort the data by 'Increment' to ensure the order on the x-axis
-    data.sort_values(by='Increment', inplace=True)
+                # Convert columns to float type
+                data[col] = pd.to_numeric(data[col], errors='coerce')
 
-    for columni, col in enumerate(data_columns, 1):
-        # Create a new figure
-        fig = go.Figure()
+                # Extract the data for the column
+                box_data = data[col].dropna().values
 
-        # Extract the box data for each increment
-        box_data = [data[data['Increment'] == increment][col].dropna().values for increment in data['Increment'].unique()]
+                # Create the box trace for this CSV object
+                fig.add_trace(go.Box(y=box_data, name=f'{col} - {name}', boxpoints='all', jitter=0.5, whiskerwidth=0.2, marker_size=2))
 
-        # Create the box traces
-        for i, increment in enumerate(data['Increment'].unique(), 1):
-            fig.add_trace(go.Box(y=box_data[i-1], name=str(increment), marker_color='lightblue', line_color='black'))
+            # Adjust layout
+            fig.update_layout(
+                title=f"Box plot for {col}",
+                yaxis_title='Value',
+                boxmode='overlay'  
+            )
 
-        # Median trace
-        medians = [np.median(b_data) for b_data in box_data if len(b_data) > 0]
-        fig.add_trace(go.Scatter(x=list(data['Increment'].unique()), y=medians, mode='lines', name='Medians', line=dict(color='red')))
+            # Save the plot as HTML
+            fig.write_html(f"static/{name}/fig{columni}.html")
 
-        # Adjust layout
-        fig.update_layout(
-            title=f"Box plot for {col}",
-            xaxis_title='Increment',
-            yaxis_title='Value',
-        )
-
-        # Save the plot as HTML
-        fig.write_html(f"static/{name}/fig{columni}.html")  
 
 
 
