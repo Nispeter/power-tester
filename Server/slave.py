@@ -48,7 +48,7 @@ def compile_and_execute(name):
     return aux.stdout.strip()
 
 def cae_lcs(name):
-    WINDOW_SIZE = 200
+    WINDOW_SIZE = 20
     """Compile and execute the code."""
     sub.run(["g++", name], universal_newlines=True)
     try:
