@@ -23,25 +23,17 @@ if [[ $step_size -eq 0 ]]; then
 fi
 
 INCREMENT=30  # Number of increments.
-
-# Warming up
-for((w=0; w<3; w++))
-do
-    warmup_input=$(head -n $step_size $input_file)
-    echo $warmup_input | ./${executable} > /dev/null 2>&1
-done
-
 # For each increment
 current_size=$step_size
 for((i=1; i<=INCREMENT; i++))
 do
-    current_input=$(head -n $current_size $input_file)
+    current_input=$(head -n $current_size $input_file | tr '\n' ' ')
     
     # Within each increment, run the measurement 30 times
     for((j=0; j<SAMPLES; j++))
     do
-        echo $current_input | perf stat -a -x';' -o ${outfile}.tmp -e \
-                power/energy-cores/,power/energy-pkg/,power/energy-ram/,instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles,duration_time ./${executable}
+        perf stat -a -x';' -o ${outfile}.tmp -e \
+            power/energy-cores/,power/energy-pkg/,power/energy-ram/,instructions,LLC-loads,LLC-load-misses,LLC-stores,LLC-stores-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,cache-misses,cache-references,branches,branch-misses,cpu-cycles,duration_time ./${executable} $current_input
         
         results=$(cut -d';' -f1 ${outfile}.tmp | sed '/#/d' | sed '/^$/d' | paste -s | sed 's/,/./g' | sed 's/\s\+/,/g')
         

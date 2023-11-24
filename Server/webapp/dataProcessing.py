@@ -104,12 +104,13 @@ def plot_common_plotly(columni, csvobjs, ax, names):
 def plot_box_plotly(csvobjs, names):
     # Assuming all CSV objects have the same column structure
     if csvobjs:
+        nameresult = names[0] + "Results" + str(0) + ".csv"
         data_columns = [col for col in csvobjs[0].columns if col != 'Increment']
-
-        for columni, col in enumerate(data_columns, 1):
+        fig_number = 0 
+        for col in data_columns:
             # Create a new figure for each column
             fig = go.Figure()
-
+             
             for data, name in zip(csvobjs, names):
                 # Replace non-numeric entries
                 data.replace('<not-counted>', np.nan, inplace=True)
@@ -117,22 +118,33 @@ def plot_box_plotly(csvobjs, names):
                 # Convert columns to float type
                 data[col] = pd.to_numeric(data[col], errors='coerce')
 
-                # Extract the data for the column
-                box_data = data[col].dropna().values
+                # Group data by increment and calculate median and interquartile range
+                grouped_data = data.groupby('Increment')[col].agg(['median', lambda x: x.quantile(0.75) - x.quantile(0.25)])
+                grouped_data = data.groupby('Increment')[col].agg(
+                    median=('median'),
+                    iqr=(lambda x: x.quantile(0.75) - x.quantile(0.25))
+                )
 
-                # Create the box trace for this CSV object
-                fig.add_trace(go.Box(y=box_data, name=f'{col} - {name}', boxpoints='all', jitter=0.5, whiskerwidth=0.2, marker_size=2))
+                # Create the line trace with error bars for this CSV object
+                fig.add_trace(go.Scatter(
+                    x=grouped_data.index, 
+                    y=grouped_data['median'],
+                    error_y=dict(type='data', array=grouped_data['iqr'], visible=True),
+                    mode='lines+markers',
+                    name=f'{col} - {name}'
+                ))
 
-            # Adjust layout
-            fig.update_layout(
-                title=f"Box plot for {col}",
-                yaxis_title='Value',
-                boxmode='overlay'  
-            )
+                # Adjust layout
+                fig.update_layout(
+                    title=f"Line plot with error bars for {col}",
+                    xaxis_title='Increment',
+                    yaxis_title='Median Value'
+                )
 
-            # Save the plot as HTML
-            fig.write_html(f"static/{name}/fig{columni}.html")
-
+                # Save the plot as HTML
+            fig.write_html(f"static/{name}/fig{fig_number}.html")
+            fig_number += 1  # Increment the figure number
+        subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
 
 
 
@@ -157,7 +169,9 @@ def graph_results(names):
     
     if has_increment:
         for name in names:
-            all_csvobjs.append(read_csv_data(name))
+            csvobj = read_csv_data(name)
+            save_normalized_data(name, csvobj)
+            all_csvobjs.append(csvobj)
         plot_box_plotly(all_csvobjs, names)
     else: 
         for name in names:
@@ -165,5 +179,4 @@ def graph_results(names):
             csvobj = calculate_normalized_power(csvobj)
             save_normalized_data(name, csvobj)
             all_csvobjs.append(pd.read_csv("static/"+name+"/"+name+"ResultsFinal.csv",))
-        print(all_csvobjs)
         plot_graphs(names, all_csvobjs)

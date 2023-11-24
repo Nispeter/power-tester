@@ -3,13 +3,14 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import RenderTable from './RenderTable'
 
-function RenderImage() {
+function RenderImage({codeList}) {
   const navigate = useNavigate();
   const codename = useParams().codename;
   const name = useLocation().state.name;
   const link = `http://127.0.0.1:5000/static/${codename}/`;
 
   useEffect(() => {
+    console.log("file names from renderImage:  ", codeList);
     document.title = `Power-tester: ${name}`;
   }, [name]);
 
@@ -20,22 +21,30 @@ function RenderImage() {
         <button type="button" className="buttonv" onClick={handleDownload} style={{ float: "right" }}>Descargar CSV</button>
         <h1>{name}</h1>
       </div>
-      <div className="cat">
+      {/* <div className="cat">
         <h2>Tabla de Promedios</h2>
         <RenderTable code={codename} />
-      </div>
+      </div> */}
       <div className="cat">
         <h2>Energía y rendimiento de CPU</h2>
         <PlotIframe src={`${link}fig0.html`} />
         <PlotIframe src={`${link}fig1.html`} />
         <PlotIframe src={`${link}fig2.html`} />
         <PlotIframe src={`${link}fig3.html`} />
-        <PlotIframe src={`${link}fig16.html`} />
-        <PlotIframe src={`${link}fig15.html`} />
-        <PlotIframe src={`${link}fig14.html`} />
+        <PlotIframe src={`${link}fig4.html`} />
+        <PlotIframe src={`${link}fig5.html`} />
+        <PlotIframe src={`${link}fig6.html`} />
+        <PlotIframe src={`${link}fig7.html`} />
+        <PlotIframe src={`${link}fig8.html`} />
+        <PlotIframe src={`${link}fig9.html`} />
+        <PlotIframe src={`${link}fig10.html`} />
+        <PlotIframe src={`${link}fig11.html`} />
+        <PlotIframe src={`${link}fig12.html`} />
         <PlotIframe src={`${link}fig13.html`} />
+        <PlotIframe src={`${link}fig14.html`} />
+        <PlotIframe src={`${link}fig15.html`} />
+        <PlotIframe src={`${link}fig16.html`} />
       </div>
-      {/*... similar logic for other categories...*/}
     </div>
   );
 
@@ -56,7 +65,7 @@ function RenderImage() {
   }
 
   function PlotIframe({ src }) {
-    return <iframe src={src} title="Plot" style={{ width: "100%", height: "400px", border: "none" }}></iframe>;
+    return <iframe src={src} title="Plot" style={{ width: "100%", height: "500px", border: "none" }}></iframe>;
   }
 }
 

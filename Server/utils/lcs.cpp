@@ -29,11 +29,19 @@ string longest_common_substring(const string& str1, const string& str2) {
     return str1.substr(end - maxlen + 1, maxlen);
 }
 
-int main() {
-    string input, line;
-    while (getline(cin, line)) {
-        input += line;
-        input += "\n";
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " <input string>" << endl;
+        return 1;
+    }
+
+    string input;
+
+    for (int i = 1; i < argc; ++i) {
+        if (i > 1) {
+            input += " "; 
+        }
+        input += argv[i];
     }
 
     // Split the input into two halves
@@ -41,6 +49,8 @@ int main() {
     string first_half = input.substr(0, mid);
     string second_half = input.substr(mid);
 
-    //cout << "Longest Common Substring: " << longest_common_substring(first_half, second_half) << endl;
+    // Find the longest common substring
+    string lcs = longest_common_substring(first_half, second_half);
+
     return 0;
 }

@@ -1,8 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <sstream>
-#include <string>
 
 #define BLOCK_SIZE 32 
 

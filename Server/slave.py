@@ -52,17 +52,17 @@ def cae_lcs(name):
     """Compile and execute the code."""
     sub.run(["g++", name], universal_newlines=True)
     try:
-        aux = sub.run(["bash", "measurescript4.sh", "a.out", "/input/english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=200)
+        aux = sub.run(["bash", "measurescript4.sh", "./a.out", "./input/english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=800)
     except sub.TimeoutExpired:
         return ""
     return aux.stdout.strip()
 
 def cae_camm(name):
     # Insert any customizations specific to CAMM tasks if needed
-    WINDOW_SIZE = 200
     sub.run(["g++", name], universal_newlines=True)
+    print("running: ", name)
     try:
-        aux = sub.run(["bash", "measurescript3.sh", "a.out", "/input/ut.txt"], capture_output=True, universal_newlines=True, timeout=800)
+        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/matrix_input.txt"], capture_output=True, universal_newlines=True, timeout=800)
     except sub.TimeoutExpired:
         return ""
     return aux.stdout.strip()
@@ -90,11 +90,8 @@ def main():
         
         if "LCS" in payload_dict["name"]:
             print('Received LCS', payload_dict["name"])
-            # Save the code to file and compile & execute
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
             result_name = cae_lcs(filename)
-            # get_box_graph_params(result_name)
-            # Cleanup created files
             cleanup_files(filename, 'a.out')
             
         elif "CAMM" in payload_dict["name"]:  # Handle CAMM submissions
@@ -105,11 +102,8 @@ def main():
 
         else:
             print('Received', payload_dict["name"])
-            # Save the code to file and compile & execute
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
             result_name = compile_and_execute(filename)
-
-            # Cleanup created files
             cleanup_files(filename, 'a.out')
 
         # Send the results back to the server
