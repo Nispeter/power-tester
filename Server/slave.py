@@ -62,7 +62,7 @@ def cae_camm(name):
     sub.run(["g++", name], universal_newlines=True)
     print("running: ", name)
     try:
-        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/matrix_input.txt"], capture_output=True, universal_newlines=True, timeout=800)
+        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input.txt"], capture_output=True, universal_newlines=True, timeout=800)
     except sub.TimeoutExpired:
         return ""
     return aux.stdout.strip()

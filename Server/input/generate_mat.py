@@ -1,6 +1,6 @@
 import random
 
-filename = "matrix_input.txt"
+filename = "numerical_input.txt"
 matrix_size = 200  # Size of one side of the matrix
 
 # We'll generate numbers for two matrices, so double the total count
