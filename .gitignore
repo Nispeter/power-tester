@@ -5,6 +5,6 @@ Server/webapp/status/*
 Server/webapp/template/*
 Server/webapp/test/*
 Server/input/english.50MB
-Server/input/matrix_input.txt
+Server/input/numerical_input.txt
 Server/utils/static
 startup.sh
