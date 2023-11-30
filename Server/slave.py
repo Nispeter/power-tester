@@ -52,9 +52,9 @@ def cae_lcs(name):
     """Compile and execute the code."""
     sub.run(["g++", name], universal_newlines=True)
     try:
-        aux = sub.run(["bash", "measurescript4.sh", "./a.out", "./input/english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=800)
+        aux = sub.run(["bash", "measurescript4.sh", "./a.out", "./input/english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=3000)
     except sub.TimeoutExpired:
-        return ""
+        return "time out"
     return aux.stdout.strip()
 
 def cae_camm(name):
@@ -62,9 +62,9 @@ def cae_camm(name):
     sub.run(["g++", name], universal_newlines=True)
     print("running: ", name)
     try:
-        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input.txt"], capture_output=True, universal_newlines=True, timeout=800)
+        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input.txt"], capture_output=True, universal_newlines=True, timeout=3000)
     except sub.TimeoutExpired:
-        return ""
+        return "time out"
     return aux.stdout.strip()
 
 def send_results(host, port, name_request, result_name):

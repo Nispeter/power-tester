@@ -8,3 +8,5 @@ Server/input/english.50MB
 Server/input/numerical_input.txt
 Server/utils/static
 startup.sh
+*.csv.tmp
+Server/utils/zips/*
