@@ -2,6 +2,7 @@
 
 executable=$1
 input_file=$2
+input_size=$3
 
 outfile=resultsEnergy$(date +"%Y-%m-%d-%H:%M:%S").csv
 echo $outfile
@@ -14,7 +15,8 @@ echo $columns >> ${outfile}
 SAMPLES=30
 
 # Determine total numbers in the file
-total_numbers=$(wc -w < $input_file)
+# total_numbers=$(wc -w < $input_file)
+total_numbers=$(head -n $input_size $input_file | wc -w)
 
 # Calculate step size based on 30 increments
 step_size=$((total_numbers / 30))

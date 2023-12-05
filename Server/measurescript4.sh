@@ -16,11 +16,11 @@ INCREMENT=30
 SAMPLES=30
 
 # Warming up
-for((w=0; w<3; w++))
-do
-    warmup_input=$(head -n $window_size $input_file)
-    echo $warmup_input | ./${executable} > /dev/null 2>&1
-done
+#for((w=0; w<3; w++))
+#do
+#    warmup_input=$(head -n $window_size $input_file)
+#    echo $warmup_input | ./${executable} > /dev/null 2>&1
+#done
 
 # For each increment
 for((i=1; i<=INCREMENT; i++))

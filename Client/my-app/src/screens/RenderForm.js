@@ -193,7 +193,7 @@ function RenderForm() {
                               <p>{task.description}</p>
                               {(selectedTaskType === 'camm' || selectedTaskType === 'size') && (
                                 <div>
-                                <label>input size</label>
+                                <label>max input size</label>
                               <input 
                               type="text"
                                 className="form-control"
