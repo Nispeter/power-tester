@@ -57,8 +57,9 @@ def cae_lcs(name):
         return "time out"
     return aux.stdout.strip()
 
-def cae_camm(name):
+def cae_camm(name, input_size):
     # Insert any customizations specific to CAMM tasks if needed
+    print("input size:  ", input_size)
     sub.run(["g++", name], universal_newlines=True)
     print("running: ", name)
     try:
@@ -97,7 +98,8 @@ def main():
         elif "CAMM" in payload_dict["name"]:  # Handle CAMM submissions
             print('Received CAMM', payload_dict["name"])
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
-            result_name = cae_camm(filename)  # Call the CAMM function
+            input_size = payload_dict["input_size"]
+            result_name = cae_camm(filename, input_size)  # Call the CAMM function
             cleanup_files(filename, 'a.out')
 
         else:

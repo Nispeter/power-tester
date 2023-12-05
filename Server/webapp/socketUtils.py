@@ -87,7 +87,7 @@ def receive_data(conn, ident):
             f.write(payloadDict["results"])
 
 # Function to serve as a measurement machine
-def slave_serve(file_dir, name, cmd):
+def slave_serve(file_dir, name, cmd, input_size):
     port = 50_000
     port2 = 60_000
     host = '127.0.0.1'
@@ -106,7 +106,7 @@ def slave_serve(file_dir, name, cmd):
             s2.listen(5)
             with open(file_dir, 'r') as f:
                 code = f.read()
-            m = {"name": name, "cmd": cmd, "code": code}
+            m = {"name": name, "cmd": cmd, "code": code, "input_size":input_size}
             json_string = json.dumps(m)
             sendmng = th.Thread(target=send_manager, args=(s, json_string, name, ), daemon=True)
             sendmng.start()

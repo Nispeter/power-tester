@@ -18,11 +18,17 @@ function RenderForm() {
   const [check, setCheck] = useState(true);
   const [name, setName] = useState("test");
   const [fileList, setFileList] = useState();
+  const [inputSize, setInputSize] = useState(10000);
   var flag = "";
   var intervalID = 0;
   let navigate = useNavigate();
 
   const [selectedTaskType, setselectedTaskType] = useState(null);
+
+  useEffect(() => {
+    document.title = "Power Tester";
+    console.log("Selected Task Type:", selectedTaskType);
+  }, [selectedTaskType, fileList]);
 
   const handleRadioChange = (taskId) => {
     console.log("taskid", taskId);
@@ -30,10 +36,16 @@ function RenderForm() {
     console.log("selcted type", selectedTaskType);
   };
 
-  useEffect(() => {
-    document.title = "Power Tester";
-    console.log("Selected Task Type:", selectedTaskType);
-  }, [selectedTaskType]);
+  const sizeChange = (event) => {
+    const newValue = event.target.value;
+    console.log("Nuevo valor:", newValue);
+
+    if (!isNaN(newValue) && newValue.trim() !== '') {
+        setInputSize(newValue);
+    } else {
+        console.log("El valor introducido no es numérico");
+    }
+};
 
   function handleFileChange(event) {
     const uploadedFile = event.target.files[0];
@@ -54,6 +66,7 @@ function RenderForm() {
     console.log(file);
     const bodyFormData = new FormData();
     bodyFormData.append("file", file, file.name);
+    bodyFormData.append("input_size", inputSize);
     setStatus("Esperando respuesta");
     console.log(bodyFormData);
     if (selectedTaskType) {
@@ -69,14 +82,16 @@ function RenderForm() {
     })
       .then((response) => {
         const queuedFiles = response.data.cpp_files_queued;
+        console.log('queuedFiles: ', queuedFiles);
         if (queuedFiles.length > 0 && queuedFiles[0].length > 0) {
-          const lastIndex = queuedFiles[0].length - 1;
-          setCodename(queuedFiles[0][lastIndex]);
+          const lastIndex = queuedFiles.length - 1;
+          setCodename(queuedFiles[lastIndex]);
+          console.log(codename);
         } else {
           console.log("No files found");
         }
         intervalID = setInterval(
-          () => getStatusfromServer(queuedFiles[0]),
+          () => getStatusfromServer(queuedFiles),
           5000
         );
       })
@@ -92,7 +107,6 @@ function RenderForm() {
   function getStatusfromServer(fileNames) {
     console.log("File names: ", fileNames);
     setFileList(fileNames)
-    console.log("File namesssss: ", fileList);
     // No need to split if fileNames is already an array
     Promise.all(
       fileNames.map((fileName) =>
@@ -106,9 +120,7 @@ function RenderForm() {
         console.log(file.name + " status: " + file.status)
       );
       const allDone = results.every((file) => file.status === "DONE");
-
       if (allDone) {
-        
         clearInterval(intervalID);
         setCheck(false);
         //COMPLETAR
@@ -173,12 +185,22 @@ function RenderForm() {
                             >
                               {task.title}{" "}
                               {selectedTaskType !== task.id &&
-                                "(Expand for description)"}
+                                ""}
                             </label>
                           </div>
                           {selectedTaskType === task.id && (
                             <div className="mt-2">
                               <p>{task.description}</p>
+                              {(selectedTaskType === 'camm' || selectedTaskType === 'size') && (
+                                <div>
+                                <label>input size</label>
+                              <input 
+                              type="text"
+                                className="form-control"
+                                placeholder={inputSize}
+                                onChange={sizeChange}
+                            /></div>
+                              )}
                             </div>
                           )}
                         </div>

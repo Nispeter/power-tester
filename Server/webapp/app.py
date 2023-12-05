@@ -95,6 +95,7 @@ def cap_code():
 
     # Retrieve task_type if provided in the request
     task_type = request.form.get('task_type', '')
+    input_size = request.form.get('input_size',10000)
 
     # Validate file and task type
     if file.filename == '':
@@ -138,14 +139,14 @@ def cap_code():
                 cpp_dirs_onZip.append(cpp_file_dir)
                 names_onZip.append(name)
                 # Add to queue
-        queuelist.append([cpp_dirs_onZip, names_onZip, "-O3", task_type])
+        queuelist.append([cpp_dirs_onZip, names_onZip, "-O3", task_type, input_size ])
 
     # Remove the temporary zip file
     os.remove(temp_zip_path)
 
     # Respond with the names of the .cpp files added to the queue and their task type
-    queued_cpp_names = [item[1] for item in queuelist if item[-1] == task_type]
-    return jsonify({'cpp_files_queued': queued_cpp_names, 'task_type': task_type}), 200
+
+    return jsonify({'cpp_files_queued': names_onZip, 'task_type': task_type}), 200
 
 # Process and serve the next inline item from the queue
 def serve_next_inline():
@@ -157,7 +158,7 @@ def serve_next_inline():
             asd = r.read()
             if asd == 'IN QUEUE':
                 print(next_inline)
-                slave_serve(next_inline[0][file_num], next_inline[1][file_num], next_inline[2])
+                slave_serve(next_inline[0][file_num], next_inline[1][file_num], next_inline[2], next_inline[4])
     for file_num in range(len(next_inline[1])): 
         error_count = 0          
         with open("status/" + next_inline[1][file_num], 'r+') as r:

@@ -27,5 +27,10 @@ export const tasks = [
         id: 'camm',
         title: 'Numerical input',
         description: ``
+    },
+    {
+        id: 'size',
+        title: 'Input size',
+        description: ``
     }
   ];
