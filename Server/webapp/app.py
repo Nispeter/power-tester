@@ -122,7 +122,7 @@ def cap_code():
                 elif task_type == "LCS":
                     tag = "LCS"
                 else:
-                    tag = ""  # Default tag
+                    tag = ""  
 
                 # Construct the file path
                 name = unique_id + tag

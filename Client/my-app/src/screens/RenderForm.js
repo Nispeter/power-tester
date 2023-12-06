@@ -200,7 +200,7 @@ function RenderForm() {
                           {selectedTaskType === task.id && (
                             <div className="mt-2">
                               <p>{task.description}</p>
-                              {(selectedTaskType === 'camm' || selectedTaskType === 'size') && (
+                              {(selectedTaskType.includes('camm' ) || selectedTaskType === 'size' ) && (
                                 <div>
                                 <label>max input size</label>
                               <input 

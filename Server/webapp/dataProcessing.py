@@ -54,10 +54,10 @@ def save_normalized_data(name, csvobj):
         csvobj.to_csv(w, index=False)
 
 
-def plot_common_plotly(columni, csvobjs, ax, names):
+def plot_common_plotly(columni, csvobjs, ax, names, nameFiles):
     # Create the base figure
     fig = go.Figure()
-
+    file_count = 0
     for name, csvobj in zip(names, csvobjs):
         df = csvobj.copy()
         test = df.iloc[:, columni]
@@ -74,11 +74,11 @@ def plot_common_plotly(columni, csvobjs, ax, names):
             test2 = pd.to_numeric(test2, errors='coerce')
 
             # Bar trace
-            fig.add_trace(go.Bar(x=df.index, y=test, name=f'{titulos[columni]} - {name}', marker_color='lightblue', yaxis='y1'))
+            fig.add_trace(go.Bar(x=df.index, y=test, name=f'{titulos[columni]} - {nameFiles[file_count]}', marker_color='lightblue', yaxis='y1'))
 
             # Line trace for the twin axes
             fig.add_trace(go.Scatter(x=df.index, y=test2, mode='lines+markers', name=f'Potencia promedio - {name}', line=dict(color='red', dash='dash'), yaxis='y2'))
-
+            file_count+=1
         else:
             fig.add_trace(go.Scatter(x=df.index, y=test, mode='lines+markers', name=f'{titulos[columni]} - {name}', line=dict(color=color[0], dash='dash')))
 
@@ -137,7 +137,7 @@ def plot_box_plotly(csvobjs, names, nameFiles, input_size):
                 fig.update_layout(
                     title=f"{col}",
                     yaxis_title=unidadesdemedida[fig_number],
-                    xaxis_title='Median Value'
+                    xaxis_title='Input Size'
                 )
                 
                 # Save the plot as HTML
@@ -154,7 +154,7 @@ def plot_graphs(names, csvobjs, nameFiles):
             # df = csvobj
             # test = csvobj.iloc[:, columni]
             
-            plot_common_plotly(columni, csvobjs,ax,  names)
+            plot_common_plotly(columni, csvobjs,ax,  names, nameFiles)
             plt.close(fig)
 
         subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
