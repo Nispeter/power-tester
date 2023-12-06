@@ -99,10 +99,10 @@ def plot_common_plotly(columni, csvobjs, ax, names):
     # Save the figure as an HTML file
     fig.write_html(f"static/{name}/fig{columni}.html")
 
-
-
-def plot_box_plotly(csvobjs, names):
+def plot_box_plotly(csvobjs, names, nameFiles, input_size):
+    input_size = int(input_size)
     # Assuming all CSV objects have the same column structure
+    print("input size: ", input_size)
     if csvobjs:
         nameresult = names[0] + "Results" + str(0) + ".csv"
         data_columns = [col for col in csvobjs[0].columns if col != 'Increment']
@@ -110,11 +110,10 @@ def plot_box_plotly(csvobjs, names):
         for col in data_columns:
             # Create a new figure for each column
             fig = go.Figure()
-             
+            file_count = 0
             for data, name in zip(csvobjs, names):
                 # Replace non-numeric entries
                 data.replace('<not-counted>', np.nan, inplace=True)
-
                 # Convert columns to float type
                 data[col] = pd.to_numeric(data[col], errors='coerce')
 
@@ -124,23 +123,23 @@ def plot_box_plotly(csvobjs, names):
                     median=('median'),
                     iqr=(lambda x: x.quantile(0.75) - x.quantile(0.25))
                 )
-
+                increments = np.linspace(0, input_size, len(grouped_data))
                 # Create the line trace with error bars for this CSV object
                 fig.add_trace(go.Scatter(
-                    x=grouped_data.index, 
+                    x=increments,
                     y=grouped_data['median'],
                     error_y=dict(type='data', array=grouped_data['iqr'], visible=True),
                     mode='lines+markers',
-                    name=f'{col} - {name}'
+                    name=f'{col} - {nameFiles[file_count]}'
                 ))
-
+                file_count+=1
                 # Adjust layout
                 fig.update_layout(
-                    title=f"Line plot with error bars for {col}",
-                    xaxis_title='Increment',
-                    yaxis_title='Median Value'
+                    title=f"{col}",
+                    yaxis_title=unidadesdemedida[fig_number],
+                    xaxis_title='Median Value'
                 )
-
+                
                 # Save the plot as HTML
             fig.write_html(f"static/{name}/fig{fig_number}.html")
             fig_number += 1  # Increment the figure number
@@ -148,7 +147,7 @@ def plot_box_plotly(csvobjs, names):
 
 
 
-def plot_graphs(names, csvobjs):
+def plot_graphs(names, csvobjs, nameFiles):
         nameresult = names[0] + "Results" + str(0) + ".csv"
         for columni in range(17):
             fig, ax = plt.subplots()
@@ -161,22 +160,22 @@ def plot_graphs(names, csvobjs):
         subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
         print("Done!")
 
-def graph_results(names):
+def graph_results(names, nameFiles, input_size):
     create_directory(names)
     all_csvobjs = []
     csvobj = read_csv_data(names[0])                    #Identify the task 
     has_increment = csvobj.columns[0] == "Increment"    #Identify the task 
-    
+    print("names, size : ",nameFiles, input_size)
     if has_increment:
         for name in names:
             csvobj = read_csv_data(name)
             save_normalized_data(name, csvobj)
             all_csvobjs.append(csvobj)
-        plot_box_plotly(all_csvobjs, names)
+        plot_box_plotly(all_csvobjs, names, nameFiles, input_size)
     else: 
         for name in names:
             csvobj = read_csv_data(name)
             csvobj = calculate_normalized_power(csvobj)
             save_normalized_data(name, csvobj)
             all_csvobjs.append(pd.read_csv("static/"+name+"/"+name+"ResultsFinal.csv",))
-        plot_graphs(names, all_csvobjs)
+        plot_graphs(names, all_csvobjs, nameFiles)

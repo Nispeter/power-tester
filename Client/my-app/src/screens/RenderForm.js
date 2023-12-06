@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import getTask, {
+  numericalInputOptions,
   serverURL,
   baseURL,
   statusURL,
@@ -24,6 +25,13 @@ function RenderForm() {
   let navigate = useNavigate();
 
   const [selectedTaskType, setselectedTaskType] = useState(null);
+
+  const [optionSelected, setOptionSelected] = useState('option1');
+
+  const handleNumericalInputChange = (event) => {
+    setOptionSelected(event.target.value);
+    console.log(optionSelected);
+  };
 
   useEffect(() => {
     document.title = "Power Tester";
@@ -187,6 +195,7 @@ function RenderForm() {
                               {selectedTaskType !== task.id &&
                                 ""}
                             </label>
+                            
                           </div>
                           {selectedTaskType === task.id && (
                             <div className="mt-2">
@@ -199,7 +208,25 @@ function RenderForm() {
                                 className="form-control"
                                 placeholder={inputSize}
                                 onChange={sizeChange}
-                            /></div>
+                                
+                            />
+                            <div className="mt-2">
+                              {numericalInputOptions.map((option) => (
+                                <div className="form-check" key={option.value}>
+                                  <input 
+                                    className="form-check-input" 
+                                    type="radio" 
+                                    name="option" 
+                                    value={option.value} 
+                                    checked={optionSelected === option.value} 
+                                    onChange={handleNumericalInputChange} 
+                                  />
+                                  <label className="form-check-label">{option.label}</label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                            
                               )}
                             </div>
                           )}
@@ -216,7 +243,6 @@ function RenderForm() {
                 </div>
               </div>
             </div>
-
             <div className="col-6">
               <div className="card border-0 shadow ">
                 <div className="card-body">

@@ -111,6 +111,7 @@ def cap_code():
     with zipfile.ZipFile(temp_zip_path, 'r') as zip_ref:
         cpp_dirs_onZip = []
         names_onZip = []
+        fileNames = []
         for file_info in zip_ref.infolist():
             if file_info.filename.endswith('.cpp'):
                 # Generate a unique identifier for each .cpp file
@@ -138,8 +139,9 @@ def cap_code():
                     st.write('IN QUEUE')
                 cpp_dirs_onZip.append(cpp_file_dir)
                 names_onZip.append(name)
+                fileNames.append(file_info.filename)
                 # Add to queue
-        queuelist.append([cpp_dirs_onZip, names_onZip, "-O3", task_type, input_size ])
+        queuelist.append([cpp_dirs_onZip, names_onZip, "-O3", task_type, input_size, fileNames ])
 
     # Remove the temporary zip file
     os.remove(temp_zip_path)
@@ -173,7 +175,7 @@ def serve_next_inline():
                 error_count+=1
                 print(next_inline, 'failed: No machines available!')
     if error_count == 0:
-        graph_results(next_inline[1])
+        graph_results(next_inline[1], next_inline[5],next_inline[4])
     
 
 # Get the number of files in the 'status' directory
