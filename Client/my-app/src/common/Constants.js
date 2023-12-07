@@ -6,7 +6,10 @@ export default function getTask(taskState){
     console.log("taskstate", taskState);
     if(taskState === 'lcs')
         return "LCS";
-    else if (taskState.includes('camm')){
+    if(taskState === 'size'){
+        return "SIZE";
+    }
+    if (taskState.includes('camm')){
         if(taskState === 'cammr')
             return "CAMMR";
         if(taskState === 'cammso')

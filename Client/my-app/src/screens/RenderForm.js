@@ -211,7 +211,7 @@ function RenderForm() {
                                 
                             />
                             <div className="mt-2">
-                              {numericalInputOptions.map((option) => (
+                              { selectedTaskType !== 'size' && numericalInputOptions.map((option) => (
                                 <div className="form-check" key={option.value}>
                                   <input 
                                     className="form-check-input" 

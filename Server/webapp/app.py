@@ -121,6 +121,8 @@ def cap_code():
                     tag = "CAMM"
                 elif task_type == "LCS":
                     tag = "LCS"
+                elif task_type == "SIZE":
+                    tag = "SIZE"
                 else:
                     tag = ""  
 

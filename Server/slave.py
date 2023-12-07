@@ -68,6 +68,17 @@ def cae_camm(name, input_size):
         return "time out"
     return aux.stdout.strip()
 
+def cae_size(name, input_size):
+    # Insert any customizations specific to CAMM tasks if needed
+    print("input size:  ", input_size)
+    sub.run(["g++", name], universal_newlines=True)
+    print("running: ", name)
+    try:
+        aux = sub.run(["bash", "measurescript5.sh", "./a.out", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
+    except sub.TimeoutExpired:
+        return "time out"
+    return aux.stdout.strip()
+
 def send_results(host, port, name_request, result_name):
     """Send the results to the server."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s2:
@@ -93,6 +104,13 @@ def main():
             print('Received LCS', payload_dict["name"])
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
             result_name = cae_lcs(filename)
+            cleanup_files(filename, 'a.out')
+
+        elif "SIZE" in payload_dict["name"]:
+            print('Received SIZE', payload_dict["name"])
+            filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
+            input_size = payload_dict["input_size"]
+            result_name = cae_size(filename, input_size)  
             cleanup_files(filename, 'a.out')
             
         elif "CAMM" in payload_dict["name"]:  # Handle CAMM submissions
