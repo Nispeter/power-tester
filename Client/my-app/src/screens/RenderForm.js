@@ -200,7 +200,7 @@ function RenderForm() {
                           {selectedTaskType === task.id && (
                             <div className="mt-2">
                               <p>{task.description}</p>
-                              {(selectedTaskType.includes('camm' ) || selectedTaskType === 'size' ) && (
+                              {(selectedTaskType.includes('camm' ) || selectedTaskType === 'size' || selectedTaskType === 'lcs' ) && (
                                 <div>
                                 <label>max input size</label>
                               <input 
@@ -211,7 +211,7 @@ function RenderForm() {
                                 
                             />
                             <div className="mt-2">
-                              { selectedTaskType !== 'size' && numericalInputOptions.map((option) => (
+                              { selectedTaskType !== 'size' && selectedTaskType !== 'lcs' && numericalInputOptions.map((option) => (
                                 <div className="form-check" key={option.value}>
                                   <input 
                                     className="form-check-input" 

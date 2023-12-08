@@ -11,6 +11,13 @@ cols=("Increment" "EnergyCores" "EnergyPkg" "EnergyRAM" "Instructions" "LLCLoads
 
 numcols=$(echo ${cols[@]})
 columns=$(echo ${numcols// /,})
+
+WARMUP_ROUNDS=3
+for((i=0; i<WARMUP_ROUNDS; i++))
+do
+    ./${executable} > /dev/null 2>&1
+done
+
 echo $columns >> ${outfile}
 SAMPLES=30
 
@@ -27,6 +34,14 @@ fi
 INCREMENT=30  # Number of increments.
 # For each increment
 current_size=$step_size
+
+WARMUP_ROUNDS=3
+for((i=0; i<WARMUP_ROUNDS; i++))
+do
+    warmup_input=$(head -n $((input_size / INCREMENT)) $input_file | tr '\n' ' ')
+    ./${executable} $warmup_input> /dev/null 2>&1
+done
+
 for((i=1; i<=INCREMENT; i++))
 do
     current_input=$(head -n $current_size $input_file | tr '\n' ' ')

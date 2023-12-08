@@ -14,6 +14,13 @@ echo $columns >> ${outfile}
 INCREMENT=30
 SAMPLES=30
 
+WARMUP_ROUNDS=3
+for((i=0; i<WARMUP_ROUNDS; i++))
+do
+    warmup_input=$((input_size / INCREMENT))
+    ./${executable} $warmup_input > /dev/null 2>&1
+done
+
 # For each increment
 for((i=1; i<=INCREMENT; i++))
 do

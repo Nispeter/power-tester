@@ -25,22 +25,22 @@ export const tasks = [
     {
         id: 'none',
         title: 'None',
-        description: ``
+        description: `Test de 30 repeticiones`
     },
     {
         id: 'lcs',
         title: 'Text input',
-        description: ``
+        description: `Test con entrada por argumento de un solo archivo de texto, proveniente de English50MB. 30 Incrementos hasta llegar al valor maximo con 30 repeticiones cada uno`
     },
     {
         id: 'camm',
         title: 'Numerical input',
-        description: ``
+        description: `Test con entrada por argumento de un solo archivo de numeros, contiene 150000 valores. 30 Incrementos hasta llegar al valor maximo con 30 repeticiones cada uno`
     },
     {
         id: 'size',
         title: 'Input size',
-        description: ``
+        description: `Test con entrada por argumento de un solo valor. 30 Incrementos hasta llegar al valor maximo con 30 repeticiones cada uno`
     }
   ];
 

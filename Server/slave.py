@@ -47,15 +47,15 @@ def compile_and_execute(name):
         return ""
     return aux.stdout.strip()
 
-def cae_lcs(name):
-    WINDOW_SIZE = 20
-    """Compile and execute the code."""
+def cae_lcs(name, input_size):
+    """Compile and execute the code with varying input sizes."""
     sub.run(["g++", name], universal_newlines=True)
     try:
-        aux = sub.run(["bash", "measurescript4.sh", "./a.out", "./input/english.50MB", str(WINDOW_SIZE)], capture_output=True, universal_newlines=True, timeout=3000)
+        aux = sub.run(["bash", "measurescript4.sh", "./a.out", "./input/english.50MB", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
     except sub.TimeoutExpired:
         return "time out"
     return aux.stdout.strip()
+
 
 def cae_camm(name, input_size):
     # Insert any customizations specific to CAMM tasks if needed
@@ -103,7 +103,8 @@ def main():
         if "LCS" in payload_dict["name"]:
             print('Received LCS', payload_dict["name"])
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
-            result_name = cae_lcs(filename)
+            input_size = payload_dict["input_size"]
+            result_name = cae_lcs(filename, input_size)
             cleanup_files(filename, 'a.out')
 
         elif "SIZE" in payload_dict["name"]:

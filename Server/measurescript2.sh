@@ -16,6 +16,13 @@ cols=("EnergyCores" "EnergyPkg" "EnergyRAM"
 numcols=$(echo ${cols[@]})
 columns=$(echo ${numcols// /,})
 
+
+WARMUP_ROUNDS=3
+for((i=0; i<WARMUP_ROUNDS; i++))
+do
+    ./${executable} > /dev/null 2>&1
+done
+
 echo $columns >> ${outfile}
 SAMPLES=30
 
