@@ -24,14 +24,7 @@ function RenderForm() {
   var intervalID = 0;
   let navigate = useNavigate();
 
-  const [selectedTaskType, setselectedTaskType] = useState(null);
-
-  const [optionSelected, setOptionSelected] = useState('option1');
-
-  const handleNumericalInputChange = (event) => {
-    setOptionSelected(event.target.value);
-    console.log(optionSelected);
-  };
+  const [selectedTaskType, setselectedTaskType] = useState('');
 
   useEffect(() => {
     document.title = "Power Tester";
@@ -39,9 +32,7 @@ function RenderForm() {
   }, [selectedTaskType, fileList]);
 
   const handleRadioChange = (taskId) => {
-    console.log("taskid", taskId);
     setselectedTaskType(taskId);
-    console.log("selcted type", selectedTaskType);
   };
 
   const sizeChange = (event) => {
@@ -197,7 +188,7 @@ function RenderForm() {
                             </label>
                             
                           </div>
-                          {selectedTaskType === task.id && (
+                          {(selectedTaskType === task.id || (selectedTaskType.includes("camm") && task.id.includes("camm")) )&&  (
                             <div className="mt-2">
                               <p>{task.description}</p>
                               {(selectedTaskType.includes('camm' ) || selectedTaskType === 'size' || selectedTaskType === 'lcs' ) && (
@@ -218,8 +209,7 @@ function RenderForm() {
                                     type="radio" 
                                     name="option" 
                                     value={option.value} 
-                                    checked={optionSelected === option.value} 
-                                    onChange={handleNumericalInputChange} 
+                                    onChange={(e) => handleRadioChange(option.value)} 
                                   />
                                   <label className="form-check-label">{option.label}</label>
                                 </div>

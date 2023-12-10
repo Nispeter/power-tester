@@ -57,13 +57,18 @@ def cae_lcs(name, input_size):
     return aux.stdout.strip()
 
 
-def cae_camm(name, input_size):
+def cae_camm(name, input_size, task):
     # Insert any customizations specific to CAMM tasks if needed
     print("input size:  ", input_size)
     sub.run(["g++", name], universal_newlines=True)
     print("running: ", name)
     try:
-        aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input.txt", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
+        if(task == 'CAMMS'):
+            aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input_same.txt", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
+        elif (task == 'CAMMSO'):
+            aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input_semi_sorted.txt", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
+        else:
+            aux = sub.run(["bash", "measurescript3.sh", "./a.out", "./input/numerical_input.txt", str(input_size)], capture_output=True, universal_newlines=True, timeout=3000)
     except sub.TimeoutExpired:
         return "time out"
     return aux.stdout.strip()
@@ -118,7 +123,7 @@ def main():
             print('Received CAMM', payload_dict["name"])
             filename = write_code_to_file(payload_dict["name"], payload_dict["code"])
             input_size = payload_dict["input_size"]
-            result_name = cae_camm(filename, input_size)  # Call the CAMM function
+            result_name = cae_camm(filename, input_size, payload_dict["name"])  # Call the CAMM function
             cleanup_files(filename, 'a.out')
 
         else:

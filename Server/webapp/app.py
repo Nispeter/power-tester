@@ -119,6 +119,12 @@ def cap_code():
                 print(f"Code {unique_id} found, with task {task_type}")
                 if task_type == "CAMM":
                     tag = "CAMM"
+                elif task_type == "CAMMR":
+                    tag = "CAMMR"
+                elif task_type == "CAMMS":
+                    tag = "CAMMS"
+                elif task_type == "CAMMSO":
+                    tag = "CAMMSO"
                 elif task_type == "LCS":
                     tag = "LCS"
                 elif task_type == "SIZE":
