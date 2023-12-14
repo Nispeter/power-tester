@@ -30,6 +30,9 @@ conda activate memoria
 
 en app.py usar measurescript2.sh y en este ultimo agregar al comando perf :'duartion_time'
 
+Inicializar el input de testeo
+En la carpeta power-tester/Server/input
+python3 init_input.py
 ### Setup de perf
 
 Hay que cambiar los permisos de perf
