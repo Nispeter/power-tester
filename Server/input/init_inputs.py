@@ -1,3 +1,4 @@
+import shutil
 import requests
 import subprocess
 import gzip
@@ -17,17 +18,19 @@ def decompress_gz(file_path):
             shutil.copyfileobj(f_in, f_out)
     os.remove(file_path) 
 
-def execute_script(script_name):
-    subprocess.run(['python', script_name], check=True)
+def execute_script(script_name, opt, size):
+    subprocess.run(['python3', script_name, opt, size], check=True)
 
 file_url = 'https://pizzachili.dcc.uchile.cl/texts/nlang/english.50MB.gz'
 
-gz_file_name = download_file(file_url)
+gz_file_name = download_file(file_url, "english.50MBzip")
 print(f"Downloaded '{gz_file_name}' to the current directory.")
 
 decompress_gz(gz_file_name)
 print(f"Decompressed '{gz_file_name}'.")
 
-python_script_name = 'generate_mat.py'
-execute_script(python_script_name)
+python_script_name = 'generate_num.py'
+execute_script(python_script_name,"r", "15000")
+execute_script(python_script_name,"s", "15000")
+execute_script(python_script_name,"so", "15000")
 print(f"Executed the script '{python_script_name}'.")
