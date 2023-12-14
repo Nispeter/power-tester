@@ -134,6 +134,7 @@ def main():
 
         # Send the results back to the server
         send_results(HOST, 60000, payload_dict["name"], result_name)
+        cleanup_files(result_name)
         print('Sent', payload_dict["name"] + "Results")
         
         time.sleep(10)

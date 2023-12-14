@@ -143,7 +143,8 @@ def plot_box_plotly(csvobjs, names, nameFiles, input_size):
                 # Save the plot as HTML
             fig.write_html(f"static/{name}/fig{fig_number}.html")
             fig_number += 1  # Increment the figure number
-        subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
+        for name in names:
+            subprocess.run(["/bin/mv", name + "Results" + str(0) + ".csv", "static/" + name])
 
 
 
@@ -157,7 +158,8 @@ def plot_graphs(names, csvobjs, nameFiles):
             plot_common_plotly(columni, csvobjs,ax,  names, nameFiles)
             plt.close(fig)
 
-        subprocess.run(["/bin/mv", nameresult, "static/" + names[0]])
+        for name in names:
+            subprocess.run(["/bin/mv", name + "Results" + str(0) + ".csv", "static/" + name])
         print("Done!")
 
 def graph_results(names, nameFiles, input_size):
