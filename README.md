@@ -18,7 +18,9 @@ En cualquier archivo que aparezcan las siguientes direcciones, cambiar por su co
 
 ### Correr React webapp
 
-En directorio power-tester/Client/my-app/
+En directorio power-tester/Client/my-app/, instalar dependencias con 
+    npm install 
+Luego 
     npm start 
 
 ### Setup de ambiente 
