@@ -1,41 +1,47 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
-#include <cstdlib> // for atoi
+#include <cstdlib>
 
-// [Place the binary search functions here]
-int binarySearchRecursive(const std::vector<int>& arr, int target, int low, int high) {
-    if (high >= low) {
-        int mid = low + (high - low) / 2;
+// Función de búsqueda binaria recursiva para float
+float binarySearch(const std::vector<float>& arr, float left, float right, float value) {
+    if (right >= left) {
+        float mid = left + (right - left) / 2;
 
-        if (arr[mid] == target) {
+        // Si el elemento está presente en el medio
+        if (arr[mid] == value) 
             return mid;
-        } else if (arr[mid] > target) {
-            return binarySearchRecursive(arr, target, low, mid - 1);
-        } else {
-            return binarySearchRecursive(arr, target, mid + 1, high);
-        }
+
+        // Si el elemento es menor que el medio, entonces 
+        // solo puede estar presente en el subarray izquierdo
+        if (arr[mid] > value) 
+            return binarySearch(arr, left, mid - 1, value);
+
+        // De lo contrario, el elemento solo puede estar presente
+        // en el subarray derecho
+        return binarySearch(arr, mid + 1, right, value);
     }
+
+    // Elemento no está presente en el array
     return -1;
 }
 
+int main(int argc, char** argv) {
+    std::vector<float> arr;
 
-int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " target num1 num2 num3 ..." << std::endl;
-        return 1;
+    // Convertir argumentos a float y agregarlos al vector
+    for (int i = 1; i < argc - 1; ++i) {
+        arr.push_back(std::stof(argv[i]));
     }
 
-    // First command-line argument is the target
-    int target = std::atoi(argv[1]);
+    // Valor a buscar
+    float valueToSearch = -1.0f;
 
-    // Rest of the arguments form the array
-    std::vector<int> arr;
-    for (int i = 2; i < argc; i++) {
-        arr.push_back(std::atoi(argv[i]));
-    }
+    // Ordenar el array (necesario para la búsqueda binaria)
+    std::sort(arr.begin(), arr.end());
 
-    // Calling the binary search functions
-    int resultRecursive = binarySearchRecursive(arr, target, 0, arr.size() - 1);
+    // Realizar la búsqueda binaria
+    float result = binarySearch(arr, 0, arr.size() - 1, valueToSearch);
 
 
     return 0;

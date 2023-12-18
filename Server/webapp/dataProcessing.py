@@ -122,10 +122,10 @@ def plot_box_plotly(csvobjs, names, nameFiles, input_size):
                 grouped_data = data.groupby('Increment')[col].agg(
                     median=('median'),
                     iqr=(lambda x: x.quantile(0.75) - x.quantile(0.25))
-                )
-                increments = np.linspace(0, input_size, len(grouped_data))
+                )   
+                increments = np.linspace(input_size/30, input_size, len(grouped_data))
                 # Create the line trace with error bars for this CSV object
-                fig.add_trace(go.Scatter(
+                fig.add_trace(go.Scatter(input_size,
                     x=increments,
                     y=grouped_data['median'],
                     error_y=dict(type='data', array=grouped_data['iqr'], visible=True),

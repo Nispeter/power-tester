@@ -1,44 +1,47 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
-#include <cstdlib> // for atoi
+#include <cstdlib>
 
+// Función de búsqueda binaria iterativa para float
+float binarySearch(const std::vector<float>& arr, int left, int right, float value) {
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
 
-int binarySearchIterative(const std::vector<int>& arr, int target) {
-    int low = 0;
-    int high = arr.size() - 1;
-
-    while (low <= high) {
-        int mid = low + (high - low) / 2;
-
-        if (arr[mid] == target) {
+        // Si el elemento está presente en el medio
+        if (arr[mid] == value) 
             return mid;
-        } else if (arr[mid] < target) {
-            low = mid + 1;
-        } else {
-            high = mid - 1;
-        }
+
+        // Si el elemento es menor que el medio, entonces 
+        // solo puede estar presente en el subarray izquierdo
+        if (arr[mid] > value)
+            right = mid - 1;
+        else
+            // De lo contrario, el elemento solo puede estar presente
+            // en el subarray derecho
+            left = mid + 1;
     }
+
+    // Elemento no está presente en el array
     return -1;
 }
 
+int main(int argc, char** argv) {
+    std::vector<float> arr;
 
-int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " target num1 num2 num3 ..." << std::endl;
-        return 1;
+    // Convertir argumentos a float y agregarlos al vector
+    for (int i = 1; i < argc - 1; ++i) {
+        arr.push_back(std::stof(argv[i]));
     }
 
-    // First command-line argument is the target
-    int target = std::atoi(argv[1]);
+    // Valor a buscar
+    float valueToSearch = -1.0f;
 
-    // Rest of the arguments form the array
-    std::vector<int> arr;
-    for (int i = 2; i < argc; i++) {
-        arr.push_back(std::atoi(argv[i]));
-    }
+    // Ordenar el array (necesario para la búsqueda binaria)
+    std::sort(arr.begin(), arr.end());
 
-    int resultIterative = binarySearchIterative(arr, target);
-
+    // Realizar la búsqueda binaria
+    float result = binarySearch(arr, 0, arr.size() - 1, valueToSearch);
 
     return 0;
 }
