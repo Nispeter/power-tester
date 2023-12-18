@@ -17,19 +17,24 @@ En cualquier archivo que aparezcan las siguientes direcciones, cambiar por su co
 - http://keira.inf.udec.cl/'+this.props.code+'/mean -> http://127.0.0.1/'+this.props.code+'/mean
 
 ### Correr React webapp
-
-En directorio power-tester/Client/my-app/
-    npm start 
+Conciderar que se requiere una version de node >= 12.20.0
+En directorio power-tester/Client/my-app/, instalar dependencias con 
+    ```npm install ```
+Luego 
+    ```npm start ```
 
 ### Setup de ambiente 
 
 El ambiente es requierido para administrar las dependencias del proyecto.
 En directorio power-tester/Server/
-conda env create -f powertester.yml
-conda activate memoria
+```conda env create -f powertester.yml```
+```conda activate memoria```
 
 en app.py usar measurescript2.sh y en este ultimo agregar al comando perf :'duartion_time'
 
+Inicializar el input de testeo
+En la carpeta power-tester/Server/input
+```python3 init_input.py```
 ### Setup de perf
 
 Hay que cambiar los permisos de perf
@@ -39,14 +44,14 @@ cambiar el valor predefinido de 4 -> -1
 ### Correr Servidor 
 
 En directorio power-tester/Server/webapp
-python3 app.py
+```python3 app.py```
 o usar gunicorn: 
-gunicorn --bind 127.0.0.1:5000 wsgi:app
+```gunicorn --bind 127.0.0.1:5000 wsgi:app```
 
 ### Correr Medidor 
 
 En directorio power-tester/Server/
-python3 Slave.py
+```python3 Slave.py```
 
 ![general](https://user-images.githubusercontent.com/26441581/210628228-049075b1-c714-453e-88a9-84c1e5d74113.png)
 
